@@ -1,0 +1,47 @@
+import streamlit as st
+from tabs import import_data, data_view, one_to_one
+from components import sidebar
+
+
+def _initialize_session_state():
+    """Initialize all session state variables."""
+    if 'initial_df' not in st.session_state:
+        st.session_state.initial_df = None
+    if 'processed_df' not in st.session_state:
+        st.session_state.processed_df = None
+    if 'shared_messages' not in st.session_state:
+        st.session_state.shared_messages = []
+    if 'manually_dropped_columns' not in st.session_state:
+        st.session_state.manually_dropped_columns = []
+    if 'removed_duplicates_count' not in st.session_state:
+        st.session_state.removed_duplicates_count = 0
+
+
+# Page configuration
+st.set_page_config(
+    page_title="Data Cleaner",
+    page_icon="🧹",
+    layout="wide"
+)
+
+# Initialize session state
+_initialize_session_state()
+
+# Render sidebar
+sidebar.render()
+
+# Main title
+st.title("🧹 Data Cleaner")
+
+# Create tabs
+tab1, tab2, tab3 = st.tabs(["📥 Import Data", "📊 Data View", "1:1"])
+
+with tab1:
+    import_data.render()
+
+with tab2:
+    data_view.render()
+
+with tab3:
+    one_to_one.render()
+
