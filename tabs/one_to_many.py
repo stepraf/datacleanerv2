@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import hashlib
+from helpers.one_to_many import calculate_one_to_many_violation_ratio
 
 
 # ============================================================================
@@ -48,70 +49,42 @@ def _filter_valid_results(results):
 
 def _remove_results_involving_columns(columns_to_remove):
     """Remove results that involve any of the specified columns."""
-    if 'one_to_one_results' not in st.session_state:
+    if 'one_to_many_results' not in st.session_state:
         return
     
-    if not st.session_state.one_to_one_results:
+    if not st.session_state.one_to_many_results:
         return
     
-    st.session_state.one_to_one_results = [
-        result for result in st.session_state.one_to_one_results
+    st.session_state.one_to_many_results = [
+        result for result in st.session_state.one_to_many_results
         if result['column1'] not in columns_to_remove and 
            result['column2'] not in columns_to_remove
     ]
 
 
 # ============================================================================
-# 1:1 Relationship Analysis
+# 1:N Relationship Analysis
 # ============================================================================
 
-def _calculate_one_to_one_percentage(pair_df, col1, col2):
+def _calculate_one_to_many_percentage(pair_df, col1, col2):
     """
-    Calculate the percentage of rows that have a 1:1 relationship.
+    Calculate the percentage of rows that have a 1:N relationship.
     
     Returns: (percentage, valid_rows, valid_mask)
-    A 1:1 relationship means:
-    - Each unique value in col1 maps to exactly one unique value in col2
-    - Each unique value in col2 maps to exactly one unique value in col1
+    A 1:N relationship means:
+    - col1 is the parent ("one" side): each unique value in col1 can correspond to zero or more values in col2
+    - col2 is the child ("many" side): each unique value in col2 must correspond to exactly ONE value in col1
+    
+    Note: 1:1 is a subset of 1:N where N=1. So if col2->col1 is 1:1, it's a valid 1:N relationship.
     """
-    total_rows = len(pair_df)
-    
-    # Quick check: if all groups are perfect 1:1, return 100%
-    col1_counts = pair_df.groupby(col1)[col2].nunique()
-    col2_counts = pair_df.groupby(col2)[col1].nunique()
-    
-    if (col1_counts == 1).all() and (col2_counts == 1).all():
-        valid_mask = pd.Series([True] * total_rows, index=pair_df.index)
-        return 100.0, total_rows, valid_mask
-    
-    # Estimate minimum percentage for early exit optimization
-    col1_violations = (col1_counts > 1).sum()
-    col2_violations = (col2_counts > 1).sum()
-    
-    if len(col1_counts) > 0:
-        min_pct_col1 = ((len(col1_counts) - col1_violations) / len(col1_counts)) * 100
-    else:
-        min_pct_col1 = 0
-    
-    if len(col2_counts) > 0:
-        min_pct_col2 = ((len(col2_counts) - col2_violations) / len(col2_counts)) * 100
-    else:
-        min_pct_col2 = 0
-    
-    min_estimated_percentage = min(min_pct_col1, min_pct_col2)
-    
-    # Detailed row-by-row check for accurate percentage
-    col1_valid = pair_df.groupby(col1)[col2].transform('nunique') == 1
-    col2_valid = pair_df.groupby(col2)[col1].transform('nunique') == 1
-    valid_mask = col1_valid & col2_valid
-    valid_rows = valid_mask.sum()
-    percentage = (valid_rows / total_rows) * 100 if total_rows > 0 else 0
+    # Use the helper function for consistency
+    violation_ratio, percentage, valid_rows, total_rows, valid_mask = calculate_one_to_many_violation_ratio(pair_df, col1, col2)
     
     return percentage, valid_rows, valid_mask
 
 
 def _analyze_column_pair(df_original, df_clean, col1, col2, threshold, drop_na):
-    """Analyze a single column pair for 1:1 relationship."""
+    """Analyze a single column pair for 1:N relationship."""
     # Extract the pair columns from the cleaned dataframe
     pair_df = df_clean[[col1, col2]].copy()
     
@@ -122,7 +95,10 @@ def _analyze_column_pair(df_original, df_clean, col1, col2, threshold, drop_na):
     if len(pair_df) == 0:
         return None
     
-    percentage, valid_rows, valid_mask = _calculate_one_to_one_percentage(pair_df, col1, col2)
+    percentage, valid_rows, valid_mask = _calculate_one_to_many_percentage(pair_df, col1, col2)
+    
+    # Calculate violation ratio using the helper function for consistency
+    violation_ratio, _, _, _, _ = calculate_one_to_many_violation_ratio(pair_df, col1, col2)
     
     if percentage >= threshold * 100:
         # Calculate unique values count for each column (from cleaned data)
@@ -141,6 +117,7 @@ def _analyze_column_pair(df_original, df_clean, col1, col2, threshold, drop_na):
             'column1': col1,
             'column2': col2,
             'percentage': percentage,
+            'violation_ratio': violation_ratio,
             'valid_rows': int(valid_rows),
             'total_rows': len(pair_df),
             'unique_col1': unique_col1,
@@ -156,8 +133,8 @@ def _analyze_column_pair(df_original, df_clean, col1, col2, threshold, drop_na):
     return None
 
 
-def analyze_one_to_one(df, threshold, drop_na=True):
-    """Analyze 1:1 relationships between all column pairs."""
+def analyze_one_to_many(df, threshold, drop_na=True):
+    """Analyze 1:N relationships between all column pairs."""
     st.subheader("Analysis Results")
     
     columns = _get_available_columns()
@@ -173,7 +150,7 @@ def analyze_one_to_one(df, threshold, drop_na=True):
         
         pair_count = 0
         
-        # Check all pairs of columns (only once per pair, since 1:1 is symmetric)
+        # Check all pairs of columns (check both directions: col1->col2 and col2->col1)
         for i in range(len(columns)):
             for j in range(i + 1, len(columns)):
                 col1 = columns[i]
@@ -184,12 +161,17 @@ def analyze_one_to_one(df, threshold, drop_na=True):
                 if progress_bar:
                     progress_bar.progress(pair_count / total_pairs)
                 if status_text:
-                    status_text.text(f"Analyzing pair {pair_count}/{total_pairs}: {col1} ↔ {col2}")
+                    status_text.text(f"Analyzing pair {pair_count}/{total_pairs}: {col1} → {col2}")
                 
-                # Analyze this pair
+                # Analyze this pair (col1 -> col2: 1:N means col1 is "one", col2 is "many")
                 result = _analyze_column_pair(df, df_clean, col1, col2, threshold, drop_na)
                 if result:
                     results.append(result)
+                
+                # Also check reverse direction (col2 -> col1: 1:N means col2 is "one", col1 is "many")
+                result_reverse = _analyze_column_pair(df, df_clean, col2, col1, threshold, drop_na)
+                if result_reverse:
+                    results.append(result_reverse)
         
         # Clear progress indicators
         if progress_bar:
@@ -201,7 +183,9 @@ def analyze_one_to_one(df, threshold, drop_na=True):
     results.sort(key=lambda x: x['percentage'], reverse=True)
     
     # Store results in session state
-    st.session_state.one_to_one_results = results
+    st.session_state.one_to_many_results = results
+    
+    # Don't display results here - let render() handle it to avoid duplicate keys
 
 
 # ============================================================================
@@ -215,7 +199,7 @@ def _handle_keep_column(col_to_keep, col_to_drop):
     
     st.session_state.processed_df = st.session_state.processed_df.drop(columns=[col_to_drop])
     _remove_results_involving_columns([col_to_drop])
-    _add_message(f"🗑️ **Dropped column {col_to_drop}** (kept **{col_to_keep}**) - from 1:1 analysis")
+    _add_message(f"🗑️ **Dropped column {col_to_drop}** (kept **{col_to_keep}**) - from 1:N analysis")
     st.rerun()
 
 
@@ -238,7 +222,7 @@ def _handle_concatenate(col1, col2):
     # Remove results involving the dropped columns
     _remove_results_involving_columns([col1, col2])
     
-    _add_message(f"➕ **Created new column {new_col_name}** (concatenated **{col1}** and **{col2}**, then dropped original columns) - from 1:1 analysis")
+    _add_message(f"➕ **Created new column {new_col_name}** (concatenated **{col1}** and **{col2}**, then dropped original columns) - from 1:N analysis")
     st.rerun()
 
 
@@ -252,7 +236,7 @@ def _handle_remove_both(col1, col2):
     if columns_to_drop:
         st.session_state.processed_df = st.session_state.processed_df.drop(columns=columns_to_drop)
         _remove_results_involving_columns([col1, col2])
-        _add_message(f"🗑️ **Dropped columns {col1} and {col2}** - from 1:1 analysis")
+        _add_message(f"🗑️ **Dropped columns {col1} and {col2}** - from 1:N analysis")
         st.rerun()
 
 
@@ -262,19 +246,22 @@ def _handle_remove_both(col1, col2):
 
 def _create_button_key(col1, col2, idx, action):
     """Create a unique key for a button."""
-    pair_hash = hashlib.md5(f"{col1}_{col2}".encode()).hexdigest()[:8]
-    return f"{action}_{idx}_{pair_hash}"
+    # Include idx, action, and both column names to ensure uniqueness
+    # Sort column names for consistent hashing
+    sorted_cols = tuple(sorted([col1, col2]))
+    pair_hash = hashlib.md5(f"{sorted_cols[0]}_{sorted_cols[1]}_{idx}_{action}".encode()).hexdigest()[:12]
+    return f"{action}_{idx}_{pair_hash}_1N"
 
 
 def display_results(results, threshold):
-    """Display the 1:1 relationship results with action buttons."""
+    """Display the 1:N relationship results with action buttons."""
     threshold_percent = threshold * 100
     
     if not results:
-        st.info(f"No column pairs found with ≥{threshold_percent:.0f}% 1:1 relationship.")
+        st.info(f"No column pairs found with ≥{threshold_percent:.0f}% 1:N relationship.")
         return
     
-    st.success(f"Found {len(results)} column pair(s) with ≥{threshold_percent:.0f}% 1:1 relationship:")
+    st.success(f"Found {len(results)} column pair(s) with ≥{threshold_percent:.0f}% 1:N relationship:")
     
     for idx, result in enumerate(results):
         col1 = result['column1']
@@ -292,8 +279,9 @@ def display_results(results, threshold):
             info_col, button_col = st.columns([3, 1])
             
             with info_col:
-                st.write(f"**{col1} ↔ {col2}**")
-                info_line = f"- 1:1 Relationship: {percentage:.2f}% | Valid rows: {valid_rows:,} / {total_rows:,}"
+                st.write(f"**{col1} → {col2}**")
+                violation_ratio = result.get('violation_ratio', 0)
+                info_line = f"- 1:N Relationship: {percentage:.2f}% | Valid rows: {valid_rows:,} / {total_rows:,} | Violation ratio: {violation_ratio:.4f}"
                 st.write(info_line)
                 
                 # Show unique values and NA counts combined
@@ -361,9 +349,9 @@ def display_results(results, threshold):
 # ============================================================================
 
 def render():
-    """Render the 1:1 Relationship Analysis tab."""
-    st.header("1:1 Relationship Analysis")
-    st.write("Analyze columns to find 1:1 relationships between pairs of columns.")
+    """Render the 1:N Relationship Analysis tab."""
+    st.header("1:N Relationship Analysis")
+    st.write("Analyze columns to find 1:N (one-to-many) relationships between pairs of columns.")
     
     # Check if data is available
     if not _has_data():
@@ -373,7 +361,7 @@ def render():
     available_columns = _get_available_columns()
     
     if len(available_columns) < 2:
-        st.warning("Need at least 2 columns to analyze 1:1 relationships.")
+        st.warning("Need at least 2 columns to analyze 1:N relationships.")
         return
     
     # Options
@@ -381,13 +369,13 @@ def render():
     
     with col1:
         threshold = st.slider(
-            "Minimum percentage for 1:1 relationship",
+            "Minimum percentage for 1:N relationship",
             min_value=0,
             max_value=100,
             value=95,
             step=5,
-            help="Only show column pairs that have at least this percentage of values in a 1:1 relationship",
-            key="one_to_one_threshold"
+            help="Only show column pairs that have at least this percentage of values in a 1:N relationship",
+            key="one_to_many_threshold"
         )
     
     with col2:
@@ -395,21 +383,22 @@ def render():
             "Drop NA values",
             value=True,
             help="If checked, rows with NA/null values in either column will be excluded from analysis",
-            key="one_to_one_drop_na"
+            key="one_to_many_drop_na"
         )
     
     # Analyze button
-    if st.button("Analyze 1:1 Relationships", type="primary", key="one_to_one_analyze"):
-        analyze_one_to_one(st.session_state.processed_df, threshold / 100, drop_na)
+    if st.button("Analyze 1:N Relationships", type="primary", key="one_to_many_analyze"):
+        analyze_one_to_many(st.session_state.processed_df, threshold / 100, drop_na)
     
     # Show previous results if available
-    if 'one_to_one_results' in st.session_state and st.session_state.one_to_one_results:
+    if 'one_to_many_results' in st.session_state and st.session_state.one_to_many_results:
         # Filter and update results to only include pairs where both columns still exist
-        valid_results = _filter_valid_results(st.session_state.one_to_one_results)
+        valid_results = _filter_valid_results(st.session_state.one_to_many_results)
         
-        if len(valid_results) != len(st.session_state.one_to_one_results):
-            st.session_state.one_to_one_results = valid_results
+        if len(valid_results) != len(st.session_state.one_to_many_results):
+            st.session_state.one_to_many_results = valid_results
         
         # Display results if any are valid
         if valid_results:
             display_results(valid_results, threshold / 100)
+
