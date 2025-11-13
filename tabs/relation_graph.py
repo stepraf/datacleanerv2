@@ -2,6 +2,7 @@ import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
 from io import BytesIO
+import base64
 
 # Increase PIL/Pillow image size limit to allow very large graphs
 # Default limit is ~178 million pixels, we'll increase it significantly
@@ -40,6 +41,46 @@ def _get_one_to_many_relationships():
                 relationships.append((col1, col2))
     
     return relationships
+
+
+def _get_violation_ratios():
+    """Extract violation ratios for 1:N relationships from session state."""
+    if 'one_to_many_results' not in st.session_state:
+        return {}
+    
+    violation_ratios = {}
+    for result in st.session_state.one_to_many_results:
+        col1 = result.get('column1')
+        col2 = result.get('column2')
+        violation_ratio = result.get('violation_ratio', 0.0)
+        
+        if col1 and col2:
+            # Check if both columns still exist
+            if (col1 in st.session_state.processed_df.columns and 
+                col2 in st.session_state.processed_df.columns):
+                violation_ratios[(col1, col2)] = violation_ratio
+    
+    return violation_ratios
+
+
+def _get_na_percentages():
+    """Calculate NA percentages for all columns in processed_df."""
+    if 'processed_df' not in st.session_state or st.session_state.processed_df is None:
+        return {}
+    
+    df = st.session_state.processed_df
+    na_percentages = {}
+    
+    total_rows = len(df)
+    if total_rows == 0:
+        return na_percentages
+    
+    for col in df.columns:
+        na_count = df[col].isna().sum()
+        na_percentage = na_count / total_rows
+        na_percentages[col] = na_percentage
+    
+    return na_percentages
 
 
 def _remove_transitive_edges(relationships):
@@ -191,8 +232,99 @@ def _manual_transitive_reduction(relationships):
 
 
 
+def _na_percentage_to_color(na_percentage):
+    """
+    Convert NA percentage to node color.
+    Dark green for 0% NA values.
+    Shades of dark orange for 0-15% NA values.
+    Dark red for 50%+ NA values.
+    
+    Args:
+        na_percentage: float between 0.0 (no NA) and 1.0 (all NA)
+    
+    Returns:
+        str: Hex color string (e.g., '#006400' for dark green, '#8B4513' for dark orange, '#8B0000' for dark red)
+    """
+    # Clamp NA percentage to [0, 1]
+    na_percentage = max(0.0, min(1.0, na_percentage))
+    
+    if na_percentage == 0.0:
+        # Perfect: dark green
+        return '#006400'  # Dark green
+    elif na_percentage >= 0.50:
+        # 50% or more NA: dark red
+        return '#8B0000'  # Dark red
+    elif na_percentage <= 0.15:
+        # 0-15% NA: interpolate from dark green to dark orange
+        # Map na_percentage from [0, 0.15] to [0, 1] for color interpolation
+        normalized_ratio = na_percentage / 0.15
+        
+        # Dark green: #006400 = RGB(0, 100, 0)
+        # Dark orange: #8B4513 = RGB(139, 69, 19)
+        # Interpolate between these colors
+        red_start, green_start, blue_start = 0x00, 0x64, 0x00  # Dark green RGB
+        red_end, green_end, blue_end = 0x8B, 0x45, 0x13  # Dark orange RGB
+        
+        red = int(red_start + (red_end - red_start) * normalized_ratio)
+        green = int(green_start + (green_end - green_start) * normalized_ratio)
+        blue = int(blue_start + (blue_end - blue_start) * normalized_ratio)
+        
+        return f'#{red:02X}{green:02X}{blue:02X}'
+    else:
+        # 15-50% NA: interpolate from dark orange to dark red
+        # Map na_percentage from [0.15, 0.50] to [0, 1] for color interpolation
+        normalized_ratio = (na_percentage - 0.15) / (0.50 - 0.15)
+        
+        # Dark orange: #8B4513 = RGB(139, 69, 19)
+        # Dark red: #8B0000 = RGB(139, 0, 0)
+        red_start, green_start, blue_start = 0x8B, 0x45, 0x13  # Dark orange RGB
+        red_end, green_end, blue_end = 0x8B, 0x00, 0x00  # Dark red RGB
+        
+        red = int(red_start + (red_end - red_start) * normalized_ratio)
+        green = int(green_start + (green_end - green_start) * normalized_ratio)
+        blue = int(blue_start + (blue_end - blue_start) * normalized_ratio)
+        
+        return f'#{red:02X}{green:02X}{blue:02X}'
 
-def _create_graph_visualization(relationships):
+
+def _violation_ratio_to_color(violation_ratio):
+    """
+    Convert violation ratio to color.
+    Green for 0% violation ratio.
+    Shades transitioning to red for 0-5% violation ratio.
+    Red (#FF0000) for 5% violation ratio and above.
+    
+    Args:
+        violation_ratio: float between 0.0 (perfect) and 1.0 (all violations)
+    
+    Returns:
+        str: Hex color string (e.g., '#00FF00' for green, '#FF0000' for red)
+    """
+    # Clamp violation ratio to [0, 1]
+    violation_ratio = max(0.0, min(1.0, violation_ratio))
+    
+    if violation_ratio == 0.0:
+        # Perfect: green
+        return '#00FF00'  # Green
+    elif violation_ratio >= 0.05:
+        # 5% or more violation: full red
+        return '#FF0000'  # Red
+    else:
+        # Interpolate from green to red between 0% and 5%
+        # Map violation_ratio from [0, 0.05] to [0, 1] for color interpolation
+        normalized_ratio = violation_ratio / 0.05
+        
+        # Interpolate from green to red
+        # Green component decreases as violation increases
+        # Red component increases as violation increases
+        green = int((1.0 - normalized_ratio) * 255)
+        red = int(normalized_ratio * 255)
+        blue = 0
+        # Format as hex color string
+        return f'#{red:02X}{green:02X}{blue:02X}'
+
+
+def _create_graph_visualization(relationships, violation_ratios=None, na_percentages=None):
     """
     Create a visualization of the relationship graph.
     Uses Graphviz 'dot' layout to minimize edge crossings.
@@ -200,6 +332,8 @@ def _create_graph_visualization(relationships):
     
     Args:
         relationships: List of tuples (source, target)
+        violation_ratios: Dictionary mapping (source, target) tuples to violation ratios (0.0-1.0)
+        na_percentages: Dictionary mapping column names to NA percentages (0.0-1.0)
     
     Returns:
         tuple: (BytesIO object containing the image, layout_method string, layout_error string or None)
@@ -244,7 +378,7 @@ def _create_graph_visualization(relationships):
             # Increase node separation - more space between nodes
             A.graph_attr['nodesep'] = nodesep  # Horizontal spacing between nodes
             A.graph_attr['ranksep'] = ranksep  # Vertical spacing between ranks
-            A.graph_attr['dpi'] = '300'  # Higher resolution
+            A.graph_attr['dpi'] = '75'  # Resolution for Graphviz layout
             
             # Layout with dot
             A.layout(prog='dot')
@@ -353,12 +487,58 @@ def _create_graph_visualization(relationships):
     # Create figure with scaled size
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     
+    # Prepare node colors based on NA percentages
+    if na_percentages:
+        node_colors = []
+        for node in G.nodes():
+            na_percentage = na_percentages.get(node, 0.0)
+            color = _na_percentage_to_color(na_percentage)
+            node_colors.append(color)
+    else:
+        # Default to white if no NA percentages provided
+        node_colors = 'white'
+    
     # Draw nodes with scaled size
-    nx.draw_networkx_nodes(G, pos, ax=ax, node_color='lightblue', 
+    nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, 
                           node_size=node_size, alpha=0.9, edgecolors='black', linewidths=node_linewidth)
     
+    # Prepare edge colors based on violation ratios
+    if violation_ratios:
+        edge_colors = []
+        missing_edges = []
+        found_edges = []
+        for edge in G.edges():
+            # Get violation ratio for this edge
+            # NetworkX edges are tuples, so edge should match directly
+            violation_ratio = violation_ratios.get(edge, None)
+            
+            # If not found, the edge might not be in violation_ratios
+            if violation_ratio is None:
+                violation_ratio = 0.0
+                missing_edges.append(edge)
+            else:
+                found_edges.append((edge, violation_ratio))
+            
+            color = _violation_ratio_to_color(violation_ratio)
+            edge_colors.append(color)
+            
+            # Debug: Log first few edges with non-zero violation ratios
+            if violation_ratio > 0.0 and len([e for e in found_edges if e[1] > 0.0]) <= 3:
+                print(f"Debug: Edge {edge} has violation_ratio={violation_ratio:.4f}, color={color}")
+        
+        # Debug: Print some info about edge matching (only if there are issues)
+        if missing_edges and len(missing_edges) < len(G.edges()):
+            # Only show debug if some edges are missing but not all
+            print(f"Debug: {len(missing_edges)} edges not found in violation_ratios out of {len(G.edges())} total edges")
+            if found_edges:
+                print(f"Debug: Sample found edges with ratios: {found_edges[:3]}")
+    else:
+        # Default to gray if no violation ratios provided
+        edge_colors = 'gray'
+    
     # Draw edges with arrows (straight edges for hierarchical layout)
-    nx.draw_networkx_edges(G, pos, ax=ax, edge_color='gray', 
+    # Use edge-specific colors if violation ratios are available
+    nx.draw_networkx_edges(G, pos, ax=ax, edge_color=edge_colors, 
                           arrows=True, arrowsize=arrow_size, arrowstyle='->', 
                           width=edge_width, alpha=0.7)
     
@@ -370,8 +550,45 @@ def _create_graph_visualization(relationships):
                                     bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.7))
     
     # Draw node labels with scaled font size
-    # Use better text positioning and spacing for readability
+    # Wrap labels at 16 characters per line to prevent overlap and improve readability
     # Adjust label positioning to avoid overlap, especially for nodes on same level
+    def wrap_label(text, max_chars=16):
+        """Wrap text at max_chars per line, breaking at word boundaries when possible."""
+        if len(text) <= max_chars:
+            return text
+        
+        words = text.split()
+        lines = []
+        current_line = []
+        
+        for word in words:
+            # Calculate length if we add this word to current line
+            test_line = ' '.join(current_line + [word])
+            
+            if len(test_line) <= max_chars:
+                # Word fits on current line
+                current_line.append(word)
+            else:
+                # Word doesn't fit, start a new line
+                if current_line:
+                    # Save current line and start new one
+                    lines.append(' '.join(current_line))
+                    current_line = [word]
+                else:
+                    # Word itself is longer than max_chars, break it
+                    while len(word) > max_chars:
+                        lines.append(word[:max_chars])
+                        word = word[max_chars:]
+                    current_line = [word] if word else []
+        
+        if current_line:
+            lines.append(' '.join(current_line))
+        
+        return '\n'.join(lines)
+    
+    # Create wrapped labels dictionary
+    wrapped_labels = {node: wrap_label(node, max_chars=16) for node in G.nodes()}
+    
     label_positions = {}
     for node, (x, y) in pos.items():
         # Slight vertical offset to improve readability
@@ -381,8 +598,9 @@ def _create_graph_visualization(relationships):
     # Increase padding for larger graphs to make text more readable
     label_padding = 0.3 if num_nodes <= 50 else (0.4 if num_nodes <= 100 else 0.5)
     
-    nx.draw_networkx_labels(G, label_positions, ax=ax, font_size=node_font_size, 
-                           font_weight='bold', font_family='sans-serif',
+    nx.draw_networkx_labels(G, label_positions, labels=wrapped_labels, ax=ax, 
+                           font_size=node_font_size, font_weight='bold', 
+                           font_family='sans-serif',
                            bbox=dict(boxstyle='round,pad=' + str(label_padding), 
                                    facecolor='white', edgecolor='none', alpha=0.9))
     
@@ -390,42 +608,41 @@ def _create_graph_visualization(relationships):
     plt.tight_layout()
     
     # Adjust DPI based on graph size for better quality
-    # Larger graphs need MUCH higher DPI to maintain readability
-    # Scale up to 4000 DPI (4x increase) for very large graphs for maximum readability
+    # Larger graphs need higher DPI to maintain readability
     # PIL/Pillow limit has been increased to 2 billion pixels
     
-    # Calculate desired DPI based on graph size - 4x higher for maximum readability
+    # Calculate desired DPI based on graph size
     if num_nodes <= 20:
-        desired_dpi = 600  # 4x: 150 * 4
+        desired_dpi = 150
     elif num_nodes <= 50:
-        desired_dpi = 800  # 4x: 200 * 4
+        desired_dpi = 200
     elif num_nodes <= 100:
-        desired_dpi = 1200  # 4x: 300 * 4
+        desired_dpi = 300
     elif num_nodes <= 200:
-        desired_dpi = 2000  # 4x: 500 * 4
+        desired_dpi = 500
     elif num_nodes <= 500:
-        desired_dpi = 3000  # 4x: 750 * 4
+        desired_dpi = 750
     else:
-        desired_dpi = 4000  # 4x: 1000 * 4 - Maximum DPI for extremely large graphs
+        desired_dpi = 1000  # Maximum DPI for extremely large graphs
     
     # Calculate maximum safe DPI based on figure size
     # We've increased PIL's limit to 2 billion pixels, but still use a reasonable cap
     # Formula: pixels = (width_inches * dpi) * (height_inches * dpi) = width * height * dpi^2
     # So: dpi^2 = max_pixels / (width * height)
-    # Use a very high limit (1 billion pixels) to allow large high-DPI images
-    max_pixels = 1000000000  # 1 billion pixels - very high but reasonable
+    # Use a reasonable limit (250 million pixels) to allow high-DPI images without being excessive
+    max_pixels = 250000000  # 250 million pixels - reasonable limit
     max_safe_dpi = int((max_pixels / (fig_width * fig_height)) ** 0.5)
     
     # Use the smaller of desired DPI and safe DPI
     dpi = min(desired_dpi, max_safe_dpi)
     
-    # Ensure minimum DPI for quality - 4x higher minimum for large graphs
+    # Ensure minimum DPI for quality
     if num_nodes <= 50:
-        min_dpi = 600  # 4x: 150 * 4
+        min_dpi = 150
     elif num_nodes <= 100:
-        min_dpi = 800  # 4x: 200 * 4
+        min_dpi = 200
     else:
-        min_dpi = 1000  # 4x: 250 * 4 - Higher minimum for very large graphs
+        min_dpi = 250  # Minimum for very large graphs
     
     dpi = max(dpi, min_dpi)
     
@@ -485,12 +702,24 @@ def render():
     
     # Check if 1:N analysis has been performed
     relationships = _get_one_to_many_relationships()
+    violation_ratios = _get_violation_ratios()
+    na_percentages = _get_na_percentages()
     
     if not relationships:
         st.info("No 1:N relationships found. Please run the 1:N analysis in the '1:N' tab first.")
         return
     
     st.success(f"Found {len(relationships)} relationship(s) from 1:N analysis.")
+    
+    # Debug: Show violation ratios if available
+    if violation_ratios:
+        non_zero_ratios = {k: v for k, v in violation_ratios.items() if v > 0.0}
+        if non_zero_ratios:
+            st.write(f"🔍 Debug: Found {len(non_zero_ratios)} relationship(s) with violations: {non_zero_ratios}")
+        else:
+            st.write(f"🔍 Debug: All {len(violation_ratios)} relationships have 0% violation ratio")
+    else:
+        st.write("🔍 Debug: No violation ratios found in session state")
     
     # Options
     col1, col2 = st.columns(2)
@@ -531,6 +760,24 @@ def render():
         processed_relationships = _remove_transitive_edges(relationships)
         removed_count = len(relationships) - len(processed_relationships)
         
+        # Filter violation ratios to only include processed relationships
+        # Default to 0.0 if violation ratio not found (perfect relationship)
+        processed_violation_ratios = {}
+        missing_ratios = []
+        for edge in processed_relationships:
+            # Try to get violation ratio - edges should be tuples
+            violation_ratio = violation_ratios.get(edge, None)
+            if violation_ratio is None:
+                # Edge not found in violation_ratios - default to 0.0
+                violation_ratio = 0.0
+                missing_ratios.append(edge)
+            processed_violation_ratios[edge] = violation_ratio
+        
+        # Debug: Show if any edges are missing violation ratios
+        if missing_ratios and violation_ratios:
+            st.write(f"⚠️ Debug: {len(missing_ratios)} edge(s) not found in violation_ratios: {missing_ratios[:3]}")
+            st.write(f"Available violation_ratio keys: {list(violation_ratios.keys())[:3]}")
+        
         if removed_count > 0:
             st.info(f"After removing transitive edges: {len(processed_relationships)} direct relationship(s) (removed {removed_count} transitive edge(s)).")
         else:
@@ -561,6 +808,7 @@ def render():
                             st.warning(f"- **{u} → {v}** ⚠️ (WARNING: No path found in reduced graph - this edge may have been incorrectly removed)")
     else:
         processed_relationships = relationships
+        processed_violation_ratios = violation_ratios
     
     # Show statistics if requested
     if show_statistics and processed_relationships:
@@ -649,9 +897,21 @@ def render():
         if num_nodes > 20:
             st.info(f"📊 Large graph detected ({num_nodes} nodes, {num_edges} edges). Graph size and element sizes have been automatically scaled for better visibility.")
         
+        # Show node color legend
+        if na_percentages:
+            st.info("🎨 **Node Colors:** Dark green = 0% NA values, Dark orange shades = 0-15% NA values, Dark red = 50%+ NA values")
+        
+        # Show edge color legend
+        if processed_violation_ratios:
+            non_zero_processed = {k: v for k, v in processed_violation_ratios.items() if v > 0.0}
+            if non_zero_processed:
+                st.info(f"🎨 **Edge Colors:** Green = 0% violation ratio (perfect 1:N relationship), Yellow/Orange shades = 0-5% violations, Red = 5%+ violation ratio. Found {len(non_zero_processed)} edge(s) with violations.")
+            else:
+                st.info("🎨 **Edge Colors:** Green = 0% violation ratio (perfect 1:N relationship), Yellow/Orange shades = 0-5% violations, Red = 5%+ violation ratio. (All edges have 0% violation ratio)")
+        
         with st.spinner("Generating graph visualization..."):
             try:
-                result = _create_graph_visualization(processed_relationships)
+                result = _create_graph_visualization(processed_relationships, processed_violation_ratios, na_percentages)
                 
                 if result and result[0]:
                     img_buf, layout_method, layout_error = result
@@ -660,14 +920,38 @@ def render():
                     if layout_method:
                         st.success(f"✓ Using {layout_method}")
                     
-                    # Display image at full size - don't use use_container_width to preserve quality
-                    # Streamlit will show it at native resolution, users can zoom/scroll
-                    st.image(img_buf, use_container_width=False)
+                    # Convert image to base64 for HTML display (bypasses Streamlit's image size limits)
+                    img_buf.seek(0)  # Reset buffer position
+                    img_data = img_buf.read()
+                    img_base64 = base64.b64encode(img_data).decode()
                     
-                    # Add note about image size and download
-                    st.info("💡 **Tip:** The image above is displayed at full resolution. Use your browser's zoom (Ctrl/Cmd + Mouse Wheel) to zoom in for better readability. Download the image for the highest quality version.")
+                    # Get image dimensions for display info
+                    img_buf.seek(0)  # Reset again for PIL
+                    try:
+                        # Use the Image import from the top of the file if available
+                        pil_img = Image.open(img_buf)
+                        img_width, img_height = pil_img.size
+                    except (NameError, AttributeError):
+                        # Fallback if Image is not available
+                        from PIL import Image as PILImage
+                        img_buf.seek(0)
+                        pil_img = PILImage.open(img_buf)
+                        img_width, img_height = pil_img.size
                     
-                    # Download button
+                    # Display image using HTML to bypass Streamlit's resolution limits
+                    # This allows the browser to display the full resolution image
+                    st.markdown(
+                        f'<img src="data:image/png;base64,{img_base64}" style="max-width:100%; height:auto;" />',
+                        unsafe_allow_html=True
+                    )
+                    
+                    # Show image info
+                    st.info(f"📐 **Image Resolution:** {img_width} × {img_height} pixels ({img_width*img_height/1_000_000:.1f} MP). "
+                           f"💡 **Tip:** Use your browser's zoom (Ctrl/Cmd + Mouse Wheel) to zoom in for better readability. "
+                           f"Right-click and 'Open Image in New Tab' to view at full resolution.")
+                    
+                    # Download button (reset buffer position again)
+                    img_buf.seek(0)
                     st.download_button(
                         label="Download Full Resolution Graph Image",
                         data=img_buf,
