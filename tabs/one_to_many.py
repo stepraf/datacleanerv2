@@ -373,7 +373,7 @@ def render():
             min_value=0,
             max_value=100,
             value=95,
-            step=5,
+            step=1,
             help="Only show column pairs that have at least this percentage of values in a 1:N relationship",
             key="one_to_many_threshold"
         )

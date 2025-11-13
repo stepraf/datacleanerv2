@@ -1,5 +1,5 @@
 import streamlit as st
-from tabs import import_data, data_view, one_to_one, one_to_many, relation_graph
+from tabs import import_data, one_to_one, one_to_many, one_to_n_errors, relation_graph
 from components import sidebar
 
 
@@ -34,19 +34,19 @@ sidebar.render()
 st.title("🧹 Data Cleaner")
 
 # Create tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📥 Import Data", "📊 Data View", "1:1", "1:N", "Relation Graph"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📥 Import Data", "1:1", "1:N", "1:N Errors", "Relation Graph"])
 
 with tab1:
     import_data.render()
 
 with tab2:
-    data_view.render()
-
-with tab3:
     one_to_one.render()
 
-with tab4:
+with tab3:
     one_to_many.render()
+
+with tab4:
+    one_to_n_errors.render()
 
 with tab5:
     relation_graph.render()

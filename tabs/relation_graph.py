@@ -5,13 +5,73 @@ from io import BytesIO
 import base64
 
 # Increase PIL/Pillow image size limit to allow very large graphs
-# Default limit is ~178 million pixels, we'll increase it significantly
 try:
     from PIL import Image
-    # Set to 2 billion pixels (much higher than default)
-    Image.MAX_IMAGE_PIXELS = 2000000000
+    Image.MAX_IMAGE_PIXELS = 2000000000  # 2 billion pixels
 except ImportError:
     pass
+
+
+# ============================================================================
+# Constants
+# ============================================================================
+
+# Graph size thresholds
+SMALL_GRAPH_NODES = 20
+MEDIUM_GRAPH_NODES = 50
+LARGE_GRAPH_NODES = 100
+VERY_LARGE_GRAPH_NODES = 200
+HUGE_GRAPH_NODES = 500
+
+# Figure size configuration
+BASE_FIG_WIDTH = 14
+BASE_FIG_HEIGHT = 10
+MIN_FIG_WIDTH = 20
+MIN_FIG_HEIGHT = 14
+MAX_FIG_WIDTH = 60
+MAX_FIG_HEIGHT = 50
+
+# Node size configuration
+BASE_NODE_SIZE = 3000
+MIN_NODE_SIZE_SMALL = 2000
+MIN_NODE_SIZE_MEDIUM = 1800
+MIN_NODE_SIZE_LARGE = 1500
+
+# Font size configuration
+BASE_NODE_FONT_SIZE = 10
+BASE_EDGE_FONT_SIZE = 14
+MIN_NODE_FONT_SIZE = 8
+MIN_EDGE_FONT_SIZE = 12
+
+# Edge configuration
+BASE_ARROW_SIZE = 20
+BASE_EDGE_WIDTH = 2.0
+BASE_NODE_LINEWIDTH = 2
+
+# DPI configuration
+DPI_SMALL = 150
+DPI_MEDIUM = 200
+DPI_LARGE = 300
+DPI_VERY_LARGE = 500
+DPI_HUGE = 750
+DPI_MAXIMUM = 1000
+MAX_PIXELS = 250000000  # 250 million pixels
+
+# Color thresholds
+VIOLATION_RATIO_RED_THRESHOLD = 0.05  # 5%
+NA_PERCENTAGE_ORANGE_THRESHOLD = 0.15  # 15%
+NA_PERCENTAGE_RED_THRESHOLD = 0.50  # 50%
+
+# Label configuration
+LABEL_MAX_CHARS = 16
+MAX_EDGE_LABELS = 100
+
+# Colors
+COLOR_GREEN = '#00FF00'
+COLOR_RED = '#FF0000'
+COLOR_DARK_GREEN = '#006400'
+COLOR_DARK_ORANGE = '#8B4513'
+COLOR_DARK_RED = '#8B0000'
 
 
 # ============================================================================
@@ -25,6 +85,12 @@ def _has_data():
             len(st.session_state.processed_df) > 0)
 
 
+def _columns_exist(col1, col2):
+    """Check if both columns exist in processed_df."""
+    return (col1 in st.session_state.processed_df.columns and 
+            col2 in st.session_state.processed_df.columns)
+
+
 def _get_one_to_many_relationships():
     """Extract 1:N relationships from session state."""
     if 'one_to_many_results' not in st.session_state:
@@ -34,11 +100,8 @@ def _get_one_to_many_relationships():
     for result in st.session_state.one_to_many_results:
         col1 = result.get('column1')
         col2 = result.get('column2')
-        if col1 and col2:
-            # Check if both columns still exist
-            if (col1 in st.session_state.processed_df.columns and 
-                col2 in st.session_state.processed_df.columns):
-                relationships.append((col1, col2))
+        if col1 and col2 and _columns_exist(col1, col2):
+            relationships.append((col1, col2))
     
     return relationships
 
@@ -54,11 +117,8 @@ def _get_violation_ratios():
         col2 = result.get('column2')
         violation_ratio = result.get('violation_ratio', 0.0)
         
-        if col1 and col2:
-            # Check if both columns still exist
-            if (col1 in st.session_state.processed_df.columns and 
-                col2 in st.session_state.processed_df.columns):
-                violation_ratios[(col1, col2)] = violation_ratio
+        if col1 and col2 and _columns_exist(col1, col2):
+            violation_ratios[(col1, col2)] = violation_ratio
     
     return violation_ratios
 
@@ -232,6 +292,14 @@ def _manual_transitive_reduction(relationships):
 
 
 
+def _interpolate_color(start_rgb, end_rgb, ratio):
+    """Interpolate between two RGB colors."""
+    red = int(start_rgb[0] + (end_rgb[0] - start_rgb[0]) * ratio)
+    green = int(start_rgb[1] + (end_rgb[1] - start_rgb[1]) * ratio)
+    blue = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * ratio)
+    return f'#{red:02X}{green:02X}{blue:02X}'
+
+
 def _na_percentage_to_color(na_percentage):
     """
     Convert NA percentage to node color.
@@ -243,48 +311,193 @@ def _na_percentage_to_color(na_percentage):
         na_percentage: float between 0.0 (no NA) and 1.0 (all NA)
     
     Returns:
-        str: Hex color string (e.g., '#006400' for dark green, '#8B4513' for dark orange, '#8B0000' for dark red)
+        str: Hex color string
     """
-    # Clamp NA percentage to [0, 1]
     na_percentage = max(0.0, min(1.0, na_percentage))
     
     if na_percentage == 0.0:
-        # Perfect: dark green
-        return '#006400'  # Dark green
-    elif na_percentage >= 0.50:
-        # 50% or more NA: dark red
-        return '#8B0000'  # Dark red
-    elif na_percentage <= 0.15:
-        # 0-15% NA: interpolate from dark green to dark orange
-        # Map na_percentage from [0, 0.15] to [0, 1] for color interpolation
-        normalized_ratio = na_percentage / 0.15
-        
-        # Dark green: #006400 = RGB(0, 100, 0)
-        # Dark orange: #8B4513 = RGB(139, 69, 19)
-        # Interpolate between these colors
-        red_start, green_start, blue_start = 0x00, 0x64, 0x00  # Dark green RGB
-        red_end, green_end, blue_end = 0x8B, 0x45, 0x13  # Dark orange RGB
-        
-        red = int(red_start + (red_end - red_start) * normalized_ratio)
-        green = int(green_start + (green_end - green_start) * normalized_ratio)
-        blue = int(blue_start + (blue_end - blue_start) * normalized_ratio)
-        
-        return f'#{red:02X}{green:02X}{blue:02X}'
+        return COLOR_DARK_GREEN
+    elif na_percentage >= NA_PERCENTAGE_RED_THRESHOLD:
+        return COLOR_DARK_RED
+    elif na_percentage <= NA_PERCENTAGE_ORANGE_THRESHOLD:
+        # Interpolate from dark green to dark orange (0-15%)
+        normalized_ratio = na_percentage / NA_PERCENTAGE_ORANGE_THRESHOLD
+        return _interpolate_color((0x00, 0x64, 0x00), (0x8B, 0x45, 0x13), normalized_ratio)
     else:
-        # 15-50% NA: interpolate from dark orange to dark red
-        # Map na_percentage from [0.15, 0.50] to [0, 1] for color interpolation
-        normalized_ratio = (na_percentage - 0.15) / (0.50 - 0.15)
+        # Interpolate from dark orange to dark red (15-50%)
+        normalized_ratio = (na_percentage - NA_PERCENTAGE_ORANGE_THRESHOLD) / (
+            NA_PERCENTAGE_RED_THRESHOLD - NA_PERCENTAGE_ORANGE_THRESHOLD)
+        return _interpolate_color((0x8B, 0x45, 0x13), (0x8B, 0x00, 0x00), normalized_ratio)
+
+
+def _calculate_figure_size(num_nodes):
+    """Calculate figure dimensions based on number of nodes."""
+    if num_nodes <= SMALL_GRAPH_NODES:
+        return BASE_FIG_WIDTH, BASE_FIG_HEIGHT
+    elif num_nodes <= MEDIUM_GRAPH_NODES:
+        scale_factor = (num_nodes / SMALL_GRAPH_NODES) ** 0.6
+        width = BASE_FIG_WIDTH * scale_factor * 2.0
+        height = BASE_FIG_HEIGHT * scale_factor * 2.0
+    elif num_nodes <= LARGE_GRAPH_NODES:
+        scale_factor = (num_nodes / SMALL_GRAPH_NODES) ** 0.5
+        width = BASE_FIG_WIDTH * scale_factor * 3.0
+        height = BASE_FIG_HEIGHT * scale_factor * 3.0
+    else:
+        scale_factor = (num_nodes / SMALL_GRAPH_NODES) ** 0.45
+        width = BASE_FIG_WIDTH * scale_factor * 4.0
+        height = BASE_FIG_HEIGHT * scale_factor * 4.0
+    
+    width = max(MIN_FIG_WIDTH, min(width, MAX_FIG_WIDTH))
+    height = max(MIN_FIG_HEIGHT, min(height, MAX_FIG_HEIGHT))
+    return width, height
+
+
+def _calculate_node_size(num_nodes):
+    """Calculate node size based on number of nodes."""
+    if num_nodes <= SMALL_GRAPH_NODES:
+        return BASE_NODE_SIZE
+    elif num_nodes <= MEDIUM_GRAPH_NODES:
+        return max(BASE_NODE_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.3, MIN_NODE_SIZE_SMALL)
+    elif num_nodes <= LARGE_GRAPH_NODES:
+        return max(BASE_NODE_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.25, MIN_NODE_SIZE_MEDIUM)
+    else:
+        return max(BASE_NODE_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.2, MIN_NODE_SIZE_LARGE)
+
+
+def _calculate_font_sizes(num_nodes):
+    """Calculate font sizes for nodes and edges based on number of nodes."""
+    if num_nodes <= SMALL_GRAPH_NODES:
+        return BASE_NODE_FONT_SIZE, BASE_EDGE_FONT_SIZE
+    elif num_nodes <= MEDIUM_GRAPH_NODES:
+        node_size = max(BASE_NODE_FONT_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.15, BASE_NODE_FONT_SIZE)
+        edge_size = max(BASE_EDGE_FONT_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.15, BASE_EDGE_FONT_SIZE)
+    elif num_nodes <= LARGE_GRAPH_NODES:
+        node_size = max(BASE_NODE_FONT_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.1, 9)
+        edge_size = max(BASE_EDGE_FONT_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.1, 13)
+    else:
+        node_size = max(BASE_NODE_FONT_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.05, MIN_NODE_FONT_SIZE)
+        edge_size = max(BASE_EDGE_FONT_SIZE * (SMALL_GRAPH_NODES / num_nodes) ** 0.05, MIN_EDGE_FONT_SIZE)
+    return node_size, edge_size
+
+
+def _calculate_edge_sizes(num_nodes):
+    """Calculate arrow size, edge width, and node linewidth based on number of nodes."""
+    if num_nodes <= SMALL_GRAPH_NODES:
+        return BASE_ARROW_SIZE, BASE_EDGE_WIDTH, BASE_NODE_LINEWIDTH
+    elif num_nodes <= MEDIUM_GRAPH_NODES:
+        scale = (SMALL_GRAPH_NODES / num_nodes) ** 0.3
+        arrow = max(BASE_ARROW_SIZE * scale, 12)
+        width = max(BASE_EDGE_WIDTH * scale, 1.0)
+        linewidth = max(BASE_NODE_LINEWIDTH * scale, 1)
+    else:
+        scale = (SMALL_GRAPH_NODES / num_nodes) ** 0.4
+        arrow = max(BASE_ARROW_SIZE * scale, 10)
+        width = max(BASE_EDGE_WIDTH * scale, 0.8)
+        linewidth = max(BASE_NODE_LINEWIDTH * scale, 0.8)
+    return arrow, width, linewidth
+
+
+def _wrap_label(text, max_chars=LABEL_MAX_CHARS):
+    """Wrap text at max_chars per line, breaking at word boundaries when possible."""
+    if len(text) <= max_chars:
+        return text
+    
+    words = text.split()
+    lines = []
+    current_line = []
+    
+    for word in words:
+        test_line = ' '.join(current_line + [word])
+        if len(test_line) <= max_chars:
+            current_line.append(word)
+        else:
+            if current_line:
+                lines.append(' '.join(current_line))
+                current_line = [word]
+            else:
+                while len(word) > max_chars:
+                    lines.append(word[:max_chars])
+                    word = word[max_chars:]
+                current_line = [word] if word else []
+    
+    if current_line:
+        lines.append(' '.join(current_line))
+    
+    return '\n'.join(lines)
+
+
+def _get_graphviz_spacing(num_nodes):
+    """Get Graphviz spacing parameters based on graph size."""
+    if num_nodes <= SMALL_GRAPH_NODES:
+        return '1.0', '1.5'
+    elif num_nodes <= MEDIUM_GRAPH_NODES:
+        return '2.0', '2.5'
+    elif num_nodes <= LARGE_GRAPH_NODES:
+        return '3.0', '3.5'
+    else:
+        return '4.0', '4.5'
+
+
+def _get_graphviz_layout(G):
+    """Get graph layout using Graphviz dot algorithm."""
+    try:
+        A = nx.nx_agraph.to_agraph(G)
+        nodesep, ranksep = _get_graphviz_spacing(len(G.nodes()))
         
-        # Dark orange: #8B4513 = RGB(139, 69, 19)
-        # Dark red: #8B0000 = RGB(139, 0, 0)
-        red_start, green_start, blue_start = 0x8B, 0x45, 0x13  # Dark orange RGB
-        red_end, green_end, blue_end = 0x8B, 0x00, 0x00  # Dark red RGB
+        A.graph_attr['nodesep'] = nodesep
+        A.graph_attr['ranksep'] = ranksep
+        A.graph_attr['dpi'] = '75'
+        A.layout(prog='dot')
         
-        red = int(red_start + (red_end - red_start) * normalized_ratio)
-        green = int(green_start + (green_end - green_start) * normalized_ratio)
-        blue = int(blue_start + (blue_end - blue_start) * normalized_ratio)
+        pos = {}
+        for node in G.nodes():
+            n = A.get_node(node)
+            if 'pos' in n.attr:
+                coords = n.attr['pos'].split(',')
+                pos[node] = (float(coords[0]), float(coords[1]))
         
-        return f'#{red:02X}{green:02X}{blue:02X}'
+        if not pos:
+            raise Exception("Failed to extract positions")
+        
+        return pos, "Graphviz dot (minimizes crossings, increased spacing)", None
+    except Exception:
+        try:
+            pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
+            return pos, "Graphviz dot (minimizes crossings)", None
+        except Exception as e:
+            try:
+                pos = nx.nx_pydot.graphviz_layout(G, prog='dot')
+                return pos, "Graphviz dot via pydot (minimizes crossings)", None
+            except Exception as e2:
+                raise Exception(f"Graphviz dot layout is required but not available. Error: {str(e2)}")
+
+
+def _calculate_dpi(num_nodes, fig_width, fig_height):
+    """Calculate DPI based on graph size and figure dimensions."""
+    if num_nodes <= SMALL_GRAPH_NODES:
+        desired_dpi = DPI_SMALL
+    elif num_nodes <= MEDIUM_GRAPH_NODES:
+        desired_dpi = DPI_MEDIUM
+    elif num_nodes <= LARGE_GRAPH_NODES:
+        desired_dpi = DPI_LARGE
+    elif num_nodes <= VERY_LARGE_GRAPH_NODES:
+        desired_dpi = DPI_VERY_LARGE
+    elif num_nodes <= HUGE_GRAPH_NODES:
+        desired_dpi = DPI_HUGE
+    else:
+        desired_dpi = DPI_MAXIMUM
+    
+    max_safe_dpi = int((MAX_PIXELS / (fig_width * fig_height)) ** 0.5)
+    dpi = min(desired_dpi, max_safe_dpi)
+    
+    if num_nodes <= MEDIUM_GRAPH_NODES:
+        min_dpi = DPI_SMALL
+    elif num_nodes <= LARGE_GRAPH_NODES:
+        min_dpi = DPI_MEDIUM
+    else:
+        min_dpi = 250
+    
+    return max(dpi, min_dpi)
 
 
 def _violation_ratio_to_color(violation_ratio):
@@ -292,36 +505,24 @@ def _violation_ratio_to_color(violation_ratio):
     Convert violation ratio to color.
     Green for 0% violation ratio.
     Shades transitioning to red for 0-5% violation ratio.
-    Red (#FF0000) for 5% violation ratio and above.
+    Red for 5%+ violation ratio.
     
     Args:
         violation_ratio: float between 0.0 (perfect) and 1.0 (all violations)
     
     Returns:
-        str: Hex color string (e.g., '#00FF00' for green, '#FF0000' for red)
+        str: Hex color string
     """
-    # Clamp violation ratio to [0, 1]
     violation_ratio = max(0.0, min(1.0, violation_ratio))
     
     if violation_ratio == 0.0:
-        # Perfect: green
-        return '#00FF00'  # Green
-    elif violation_ratio >= 0.05:
-        # 5% or more violation: full red
-        return '#FF0000'  # Red
+        return COLOR_GREEN
+    elif violation_ratio >= VIOLATION_RATIO_RED_THRESHOLD:
+        return COLOR_RED
     else:
-        # Interpolate from green to red between 0% and 5%
-        # Map violation_ratio from [0, 0.05] to [0, 1] for color interpolation
-        normalized_ratio = violation_ratio / 0.05
-        
-        # Interpolate from green to red
-        # Green component decreases as violation increases
-        # Red component increases as violation increases
-        green = int((1.0 - normalized_ratio) * 255)
-        red = int(normalized_ratio * 255)
-        blue = 0
-        # Format as hex color string
-        return f'#{red:02X}{green:02X}{blue:02X}'
+        # Interpolate from green to red (0-5%)
+        normalized_ratio = violation_ratio / VIOLATION_RATIO_RED_THRESHOLD
+        return _interpolate_color((0x00, 0xFF, 0x00), (0xFF, 0x00, 0x00), normalized_ratio)
 
 
 def _create_graph_visualization(relationships, violation_ratios=None, na_percentages=None):
@@ -351,138 +552,16 @@ def _create_graph_visualization(relationships, violation_ratios=None, na_percent
     if len(G.nodes()) == 0:
         return None, None, None
     
-    # Use Graphviz dot layout only (best for minimizing crossings)
-    # dot uses a hierarchical layout algorithm specifically designed to minimize crossings
-    pos = None
-    layout_method = None
-    layout_error = None
+    pos, layout_method, layout_error = _get_graphviz_layout(G)
     
-    try:
-        # Use Graphviz with increased spacing for better readability
-        # Try with increased node separation based on graph size
-        try:
-            # Use AGraph with custom attributes for better spacing
-            A = nx.nx_agraph.to_agraph(G)
-            
-            # Scale spacing based on number of nodes - MUCH more spacing for large graphs
-            num_nodes_temp = len(G.nodes())
-            if num_nodes_temp <= 20:
-                nodesep, ranksep = '1.0', '1.5'
-            elif num_nodes_temp <= 50:
-                nodesep, ranksep = '2.0', '2.5'  # Increased spacing
-            elif num_nodes_temp <= 100:
-                nodesep, ranksep = '3.0', '3.5'  # Much more spacing
-            else:
-                nodesep, ranksep = '4.0', '4.5'  # Very large spacing for large graphs
-            
-            # Increase node separation - more space between nodes
-            A.graph_attr['nodesep'] = nodesep  # Horizontal spacing between nodes
-            A.graph_attr['ranksep'] = ranksep  # Vertical spacing between ranks
-            A.graph_attr['dpi'] = '75'  # Resolution for Graphviz layout
-            
-            # Layout with dot
-            A.layout(prog='dot')
-            
-            # Extract positions from Graphviz layout
-            pos = {}
-            for node in G.nodes():
-                n = A.get_node(node)
-                if 'pos' in n.attr:
-                    coords = n.attr['pos'].split(',')
-                    pos[node] = (float(coords[0]), float(coords[1]))
-            
-            if not pos:
-                raise Exception("Failed to extract positions")
-            
-            layout_method = "Graphviz dot (minimizes crossings, increased spacing)"
-        except Exception as layout_err:
-            # Fallback to standard layout if custom attributes fail
-            pos = nx.nx_agraph.graphviz_layout(G, prog='dot')
-            layout_method = "Graphviz dot (minimizes crossings)"
-    except Exception as e:
-        layout_error = str(e)
-        try:
-            pos = nx.nx_pydot.graphviz_layout(G, prog='dot')
-            layout_method = "Graphviz dot via pydot (minimizes crossings)"
-            layout_error = None
-        except Exception as e2:
-            layout_error = f"Graphviz not available: {str(e2)}"
-            # No fallback - raise error
-            raise Exception(f"Graphviz dot layout is required but not available. Error: {str(e2)}")
-    
-    # Calculate scaling factors based on number of nodes
     num_nodes = len(G.nodes())
     num_edges = len(G.edges())
     
-    # Scale figure size based on number of nodes - MUCH larger for big graphs
-    # Base size: 14x10 for small graphs (< 20 nodes)
-    # Scale aggressively for larger graphs to ensure readability
-    if num_nodes <= 20:
-        fig_width, fig_height = 14, 10
-    elif num_nodes <= 50:
-        # Scale more aggressively
-        scale_factor = (num_nodes / 20) ** 0.6
-        fig_width = 14 * scale_factor * 2.0  # Much larger multiplier
-        fig_height = 10 * scale_factor * 2.0
-    elif num_nodes <= 100:
-        # Even more aggressive scaling
-        scale_factor = (num_nodes / 20) ** 0.5
-        fig_width = 14 * scale_factor * 3.0
-        fig_height = 10 * scale_factor * 3.0
-    else:
-        # For very large graphs, scale even more
-        scale_factor = (num_nodes / 20) ** 0.45
-        fig_width = 14 * scale_factor * 4.0  # Can get very large
-        fig_height = 10 * scale_factor * 4.0
-    
-    # Ensure minimum readable sizes
-    fig_width = max(fig_width, 20)  # At least 20 inches wide
-    fig_height = max(fig_height, 14)  # At least 14 inches tall
-    
-    # Cap figure size - now with higher pixel limit, we can allow larger figures
-    # Maximum figure size: 60x50 inches for very large graphs (with high DPI support)
-    fig_width = min(fig_width, 60)
-    fig_height = min(fig_height, 50)
-    
-    # Scale node size - prioritize readability over fitting everything
-    # Keep nodes MUCH larger for large graphs to ensure readability
-    if num_nodes <= 20:
-        node_size = 3000
-    elif num_nodes <= 50:
-        node_size = max(3000 * (20 / num_nodes) ** 0.3, 2000)  # Much larger minimum
-    elif num_nodes <= 100:
-        node_size = max(3000 * (20 / num_nodes) ** 0.25, 1800)  # Keep very large
-    else:
-        node_size = max(3000 * (20 / num_nodes) ** 0.2, 1500)  # Still very readable
-    
-    # Scale font sizes - AGGRESSIVELY prioritize readability
-    # Keep fonts MUCH larger, especially for large graphs
-    if num_nodes <= 20:
-        node_font_size = 10
-        edge_font_size = 14
-    elif num_nodes <= 50:
-        node_font_size = max(10 * (20 / num_nodes) ** 0.15, 10)  # Don't shrink much
-        edge_font_size = max(14 * (20 / num_nodes) ** 0.15, 14)
-    elif num_nodes <= 100:
-        node_font_size = max(10 * (20 / num_nodes) ** 0.1, 9)  # Keep large
-        edge_font_size = max(14 * (20 / num_nodes) ** 0.1, 13)
-    else:
-        node_font_size = max(10 * (20 / num_nodes) ** 0.05, 8)  # Minimum but still readable
-        edge_font_size = max(14 * (20 / num_nodes) ** 0.05, 12)
-    
-    # Scale arrow and edge sizes
-    if num_nodes <= 20:
-        arrow_size = 20
-        edge_width = 2.0
-        node_linewidth = 2
-    elif num_nodes <= 50:
-        arrow_size = max(20 * (20 / num_nodes) ** 0.3, 12)
-        edge_width = max(2.0 * (20 / num_nodes) ** 0.3, 1.0)
-        node_linewidth = max(2 * (20 / num_nodes) ** 0.3, 1)
-    else:
-        arrow_size = max(20 * (20 / num_nodes) ** 0.4, 10)
-        edge_width = max(2.0 * (20 / num_nodes) ** 0.4, 0.8)
-        node_linewidth = max(2 * (20 / num_nodes) ** 0.4, 0.8)
+    # Calculate all scaling factors
+    fig_width, fig_height = _calculate_figure_size(num_nodes)
+    node_size = _calculate_node_size(num_nodes)
+    node_font_size, edge_font_size = _calculate_font_sizes(num_nodes)
+    arrow_size, edge_width, node_linewidth = _calculate_edge_sizes(num_nodes)
     
     # Create figure with scaled size
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
@@ -505,33 +584,12 @@ def _create_graph_visualization(relationships, violation_ratios=None, na_percent
     # Prepare edge colors based on violation ratios
     if violation_ratios:
         edge_colors = []
-        missing_edges = []
-        found_edges = []
         for edge in G.edges():
             # Get violation ratio for this edge
             # NetworkX edges are tuples, so edge should match directly
-            violation_ratio = violation_ratios.get(edge, None)
-            
-            # If not found, the edge might not be in violation_ratios
-            if violation_ratio is None:
-                violation_ratio = 0.0
-                missing_edges.append(edge)
-            else:
-                found_edges.append((edge, violation_ratio))
-            
+            violation_ratio = violation_ratios.get(edge, 0.0)
             color = _violation_ratio_to_color(violation_ratio)
             edge_colors.append(color)
-            
-            # Debug: Log first few edges with non-zero violation ratios
-            if violation_ratio > 0.0 and len([e for e in found_edges if e[1] > 0.0]) <= 3:
-                print(f"Debug: Edge {edge} has violation_ratio={violation_ratio:.4f}, color={color}")
-        
-        # Debug: Print some info about edge matching (only if there are issues)
-        if missing_edges and len(missing_edges) < len(G.edges()):
-            # Only show debug if some edges are missing but not all
-            print(f"Debug: {len(missing_edges)} edges not found in violation_ratios out of {len(G.edges())} total edges")
-            if found_edges:
-                print(f"Debug: Sample found edges with ratios: {found_edges[:3]}")
     else:
         # Default to gray if no violation ratios provided
         edge_colors = 'gray'
@@ -543,51 +601,13 @@ def _create_graph_visualization(relationships, violation_ratios=None, na_percent
                           width=edge_width, alpha=0.7)
     
     # Draw edge labels with subset symbol (only if not too many edges)
-    # For very dense graphs, skip edge labels to reduce clutter
-    if num_edges <= 100:
+    if num_edges <= MAX_EDGE_LABELS:
         edge_labels = {(u, v): '⊂' for u, v in G.edges()}
         nx.draw_networkx_edge_labels(G, pos, edge_labels, ax=ax, font_size=edge_font_size, 
                                     bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.7))
     
-    # Draw node labels with scaled font size
-    # Wrap labels at 16 characters per line to prevent overlap and improve readability
-    # Adjust label positioning to avoid overlap, especially for nodes on same level
-    def wrap_label(text, max_chars=16):
-        """Wrap text at max_chars per line, breaking at word boundaries when possible."""
-        if len(text) <= max_chars:
-            return text
-        
-        words = text.split()
-        lines = []
-        current_line = []
-        
-        for word in words:
-            # Calculate length if we add this word to current line
-            test_line = ' '.join(current_line + [word])
-            
-            if len(test_line) <= max_chars:
-                # Word fits on current line
-                current_line.append(word)
-            else:
-                # Word doesn't fit, start a new line
-                if current_line:
-                    # Save current line and start new one
-                    lines.append(' '.join(current_line))
-                    current_line = [word]
-                else:
-                    # Word itself is longer than max_chars, break it
-                    while len(word) > max_chars:
-                        lines.append(word[:max_chars])
-                        word = word[max_chars:]
-                    current_line = [word] if word else []
-        
-        if current_line:
-            lines.append(' '.join(current_line))
-        
-        return '\n'.join(lines)
-    
     # Create wrapped labels dictionary
-    wrapped_labels = {node: wrap_label(node, max_chars=16) for node in G.nodes()}
+    wrapped_labels = {node: _wrap_label(node) for node in G.nodes()}
     
     label_positions = {}
     for node, (x, y) in pos.items():
@@ -607,47 +627,7 @@ def _create_graph_visualization(relationships, violation_ratios=None, na_percent
     ax.axis('off')
     plt.tight_layout()
     
-    # Adjust DPI based on graph size for better quality
-    # Larger graphs need higher DPI to maintain readability
-    # PIL/Pillow limit has been increased to 2 billion pixels
-    
-    # Calculate desired DPI based on graph size
-    if num_nodes <= 20:
-        desired_dpi = 150
-    elif num_nodes <= 50:
-        desired_dpi = 200
-    elif num_nodes <= 100:
-        desired_dpi = 300
-    elif num_nodes <= 200:
-        desired_dpi = 500
-    elif num_nodes <= 500:
-        desired_dpi = 750
-    else:
-        desired_dpi = 1000  # Maximum DPI for extremely large graphs
-    
-    # Calculate maximum safe DPI based on figure size
-    # We've increased PIL's limit to 2 billion pixels, but still use a reasonable cap
-    # Formula: pixels = (width_inches * dpi) * (height_inches * dpi) = width * height * dpi^2
-    # So: dpi^2 = max_pixels / (width * height)
-    # Use a reasonable limit (250 million pixels) to allow high-DPI images without being excessive
-    max_pixels = 250000000  # 250 million pixels - reasonable limit
-    max_safe_dpi = int((max_pixels / (fig_width * fig_height)) ** 0.5)
-    
-    # Use the smaller of desired DPI and safe DPI
-    dpi = min(desired_dpi, max_safe_dpi)
-    
-    # Ensure minimum DPI for quality
-    if num_nodes <= 50:
-        min_dpi = 150
-    elif num_nodes <= 100:
-        min_dpi = 200
-    else:
-        min_dpi = 250  # Minimum for very large graphs
-    
-    dpi = max(dpi, min_dpi)
-    
-    # Store layout info for debugging (will be returned or can be displayed)
-    # The layout_method and layout_error are available if needed for display
+    dpi = _calculate_dpi(num_nodes, fig_width, fig_height)
     
     # Convert to BytesIO
     buf = BytesIO()
@@ -711,16 +691,6 @@ def render():
     
     st.success(f"Found {len(relationships)} relationship(s) from 1:N analysis.")
     
-    # Debug: Show violation ratios if available
-    if violation_ratios:
-        non_zero_ratios = {k: v for k, v in violation_ratios.items() if v > 0.0}
-        if non_zero_ratios:
-            st.write(f"🔍 Debug: Found {len(non_zero_ratios)} relationship(s) with violations: {non_zero_ratios}")
-        else:
-            st.write(f"🔍 Debug: All {len(violation_ratios)} relationships have 0% violation ratio")
-    else:
-        st.write("🔍 Debug: No violation ratios found in session state")
-    
     # Options
     col1, col2 = st.columns(2)
     
@@ -762,21 +732,10 @@ def render():
         
         # Filter violation ratios to only include processed relationships
         # Default to 0.0 if violation ratio not found (perfect relationship)
-        processed_violation_ratios = {}
-        missing_ratios = []
-        for edge in processed_relationships:
-            # Try to get violation ratio - edges should be tuples
-            violation_ratio = violation_ratios.get(edge, None)
-            if violation_ratio is None:
-                # Edge not found in violation_ratios - default to 0.0
-                violation_ratio = 0.0
-                missing_ratios.append(edge)
-            processed_violation_ratios[edge] = violation_ratio
-        
-        # Debug: Show if any edges are missing violation ratios
-        if missing_ratios and violation_ratios:
-            st.write(f"⚠️ Debug: {len(missing_ratios)} edge(s) not found in violation_ratios: {missing_ratios[:3]}")
-            st.write(f"Available violation_ratio keys: {list(violation_ratios.keys())[:3]}")
+        processed_violation_ratios = {
+            edge: violation_ratios.get(edge, 0.0) 
+            for edge in processed_relationships
+        }
         
         if removed_count > 0:
             st.info(f"After removing transitive edges: {len(processed_relationships)} direct relationship(s) (removed {removed_count} transitive edge(s)).")
@@ -791,21 +750,38 @@ def render():
             G_reduced.add_edges_from(processed_relationships)
             removed_edges = set(relationships) - set(processed_relationships)
             
+            # Identify bidirectional pairs (1:1 relationships)
+            bidirectional_removed = set()
+            for u, v in removed_edges:
+                if (v, u) in removed_edges or (v, u) in processed_relationships:
+                    bidirectional_removed.add((u, v))
+            
             if removed_edges:
                 with st.expander("🔍 Removed Transitive Edges"):
-                    st.write("The following edges were removed because they are implied by other paths:")
+                    st.write("The following edges were removed:")
                     for u, v in sorted(removed_edges):
-                        # Find the path that implies this edge
-                        G_temp = G_reduced.copy()
-                        if nx.has_path(G_temp, u, v):
-                            try:
-                                path = nx.shortest_path(G_temp, u, v)
-                                path_str = " → ".join(path)
-                                st.write(f"- **{u} → {v}** (implied by: {path_str})")
-                            except Exception as e:
-                                st.write(f"- **{u} → {v}** (implied by another path)")
+                        # Check if this is a bidirectional edge (1:1 relationship)
+                        if (u, v) in bidirectional_removed:
+                            # This is part of a bidirectional pair - removed to break cycle
+                            reverse_edge = (v, u)
+                            if reverse_edge in processed_relationships:
+                                st.write(f"- **{u} → {v}** (removed to break bidirectional cycle, kept: {v} → {u})")
+                            else:
+                                st.write(f"- **{u} → {v}** (removed to break bidirectional cycle)")
                         else:
-                            st.warning(f"- **{u} → {v}** ⚠️ (WARNING: No path found in reduced graph - this edge may have been incorrectly removed)")
+                            # Check if there's a path that implies this edge
+                            G_temp = G_reduced.copy()
+                            if nx.has_path(G_temp, u, v):
+                                try:
+                                    path = nx.shortest_path(G_temp, u, v)
+                                    path_str = " → ".join(path)
+                                    st.write(f"- **{u} → {v}** (implied by: {path_str})")
+                                except Exception:
+                                    st.write(f"- **{u} → {v}** (implied by another path)")
+                            else:
+                                # This shouldn't happen, but if it does, it might be a bidirectional edge
+                                # or an edge case in transitive reduction
+                                st.write(f"- **{u} → {v}** (removed during transitive reduction)")
     else:
         processed_relationships = relationships
         processed_violation_ratios = violation_ratios
@@ -866,11 +842,6 @@ def render():
                 if not nodes_multiple_incoming and not nodes_multiple_outgoing:
                     st.info("All nodes have at most one incoming and one outgoing edge. This is a simple chain structure.")
         
-        # Show all edges for debugging
-        with st.expander("📋 All Relationships"):
-            for u, v in sorted(processed_relationships):
-                st.write(f"- {u} → {v}")
-    
     # Create and display visualization
     if processed_relationships:
         st.subheader("Relationship Graph")

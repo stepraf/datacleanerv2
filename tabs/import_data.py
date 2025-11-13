@@ -133,8 +133,9 @@ def _clean_dataframe(df):
         empty_rows_count = 0
     progress_bar.progress(0.6)
     
-    # Step 4: Remove trailing spaces and replace space-only values (60-100% of progress)
+    # Step 4: Remove leading and trailing spaces and replace space-only values (60-100% of progress)
     status_text.text("Cleaning string values...")
+    leading_spaces_count = 0
     trailing_spaces_count = 0
     na_replacements_count = 0
     
@@ -145,16 +146,19 @@ def _clean_dataframe(df):
             progress = 0.6 + (idx + 1) / len(string_columns) * 0.4
             progress_bar.progress(progress)
         
-        # Count values with trailing spaces before stripping
-        # Use regex to check specifically for trailing whitespace
+        # Count values with leading and trailing spaces before stripping
+        # Use regex to check specifically for leading and trailing whitespace
         mask_notna = df[col].notna()
         if mask_notna.any():
+            # Check if non-NA values have leading spaces (start with whitespace)
+            has_leading_spaces = df[col][mask_notna].astype(str).str.match(r'^\s+.+', na=False)
+            leading_spaces_count += has_leading_spaces.sum()
             # Check if non-NA values have trailing spaces (end with whitespace)
             has_trailing_spaces = df[col][mask_notna].astype(str).str.match(r'.+\s+$', na=False)
             trailing_spaces_count += has_trailing_spaces.sum()
         
-        # Remove trailing spaces
-        df[col] = df[col].str.rstrip()
+        # Remove leading and trailing spaces
+        df[col] = df[col].str.strip()
         
         # Count values that will be replaced by NA (space-only or empty)
         before_na_replace = df[col].copy()
@@ -169,7 +173,7 @@ def _clean_dataframe(df):
     progress_bar.progress(1.0)
     status_text.text("Cleaning complete!")
     
-    return df, removed_columns, empty_rows_count, trailing_spaces_count, na_replacements_count
+    return df, removed_columns, empty_rows_count, leading_spaces_count, trailing_spaces_count, na_replacements_count
 
 
 def _handle_file_upload(uploaded_file):
@@ -185,12 +189,13 @@ def _handle_file_upload(uploaded_file):
         st.session_state.initial_df = initial_df
         
         # Clean and process dataframe
-        processed_df, removed_columns, empty_rows_count, trailing_spaces_count, na_replacements_count = _clean_dataframe(initial_df.copy())
+        processed_df, removed_columns, empty_rows_count, leading_spaces_count, trailing_spaces_count, na_replacements_count = _clean_dataframe(initial_df.copy())
         
         # Store processed dataframe and metadata
         st.session_state.processed_df = processed_df
         st.session_state.removed_columns = removed_columns
         st.session_state.removed_empty_rows_count = empty_rows_count
+        st.session_state.leading_spaces_count = leading_spaces_count
         st.session_state.trailing_spaces_count = trailing_spaces_count
         st.session_state.na_replacements_count = na_replacements_count
         
@@ -216,7 +221,11 @@ def _handle_file_upload(uploaded_file):
             _add_message(f"🗑️ **Removed {empty_rows_count} empty row(s)**")
             messages_added = True
         
-        # Add messages for trailing spaces and NA replacements
+        # Add messages for leading spaces, trailing spaces and NA replacements
+        if leading_spaces_count > 0:
+            _add_message(f"🧹 **Removed leading spaces from {leading_spaces_count} value(s)**")
+            messages_added = True
+        
         if trailing_spaces_count > 0:
             _add_message(f"🧹 **Removed trailing spaces from {trailing_spaces_count} value(s)**")
             messages_added = True
