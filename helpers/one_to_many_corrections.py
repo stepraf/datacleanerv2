@@ -86,13 +86,14 @@ def calculate_corrections_for_pair(df, parent_col, child_col, drop_na):
         num_changes = len(rows_to_correct)
         
         if num_changes > 0:
-            corrections.append({
+            correction = {
                 'violating_value': child_val,
                 'current_values': parent_counts.to_dict(),
                 'correct_value': correct_parent_val,
                 'num_changes': num_changes,
                 'rows_to_correct': rows_to_correct.index.tolist()
-            })
+            }
+            corrections.append(correction)
             total_changes += num_changes
     
     if total_changes == 0:
@@ -135,6 +136,26 @@ def _calculate_dynamic_confidence_threshold(sample_size):
         return 85.0  # Very small: 85% threshold
 
 
+def _meets_count_threshold(total_count, min_count_threshold):
+    """Check if total count meets minimum threshold."""
+    return total_count >= min_count_threshold
+
+
+def _meets_percentage_threshold(most_frequent_count, total_count):
+    """Check if most frequent value meets dynamic confidence threshold."""
+    confidence_threshold = _calculate_dynamic_confidence_threshold(total_count)
+    most_frequent_percentage = (most_frequent_count / total_count) * 100
+    return most_frequent_percentage >= confidence_threshold
+
+
+def _meets_ratio_threshold(most_frequent_count, second_frequent_count, ratio_threshold):
+    """Check if ratio between most and second most frequent meets threshold."""
+    if second_frequent_count == 0:
+        return True  # Only one value, ratio check not applicable
+    ratio = most_frequent_count / second_frequent_count
+    return ratio >= ratio_threshold
+
+
 def is_correction_confident(correction, min_count_threshold, ratio_threshold=3.0):
     """
     Determine if a correction is confident enough to apply automatically.
@@ -163,23 +184,18 @@ def is_correction_confident(correction, min_count_threshold, ratio_threshold=3.0
     total_count = sum(current_values.values())
     
     # Criterion 1: Minimum count threshold
-    if total_count < min_count_threshold:
+    if not _meets_count_threshold(total_count, min_count_threshold):
         return False
     
     # Criterion 2: Dynamic confidence threshold
-    confidence_threshold = _calculate_dynamic_confidence_threshold(total_count)
-    most_frequent_percentage = (most_frequent_count / total_count) * 100
-    
-    if most_frequent_percentage < confidence_threshold:
+    if not _meets_percentage_threshold(most_frequent_count, total_count):
         return False
     
     # Criterion 3: Ratio threshold (only if there are at least 2 values)
     if len(sorted_values) >= 2:
         second_frequent_count = sorted_values[1][1]
-        if second_frequent_count > 0:
-            ratio = most_frequent_count / second_frequent_count
-            if ratio < ratio_threshold:
-                return False
+        if not _meets_ratio_threshold(most_frequent_count, second_frequent_count, ratio_threshold):
+            return False
     
     return True
 
