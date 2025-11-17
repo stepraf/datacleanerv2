@@ -48,6 +48,9 @@ venv.bak/
 .env.local
 .env.*.local
 
+# Configuration files with sensitive data
+config.py
+
 # Data files (optional - uncomment if you don't want to track data files)
 # *.csv
 # *.xlsx
