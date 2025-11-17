@@ -85,7 +85,8 @@ def _format_rows_batch_for_prompt(df_batch, columns, group_value=None, include_g
 
 
 def _batch_rows_by_group(df, group_column, max_rows_per_batch=MAX_ROWS_PER_BATCH):
-    """Batch rows by group value, splitting large groups if needed."""
+    """Batch rows by group value, splitting large groups if needed.
+    Batches with less than 10 rows are merged with the next batch if possible."""
     batches = []
     
     # Group by the grouping column
@@ -129,7 +130,57 @@ def _batch_rows_by_group(df, group_column, max_rows_per_batch=MAX_ROWS_PER_BATCH
                     'rows': batch_rows
                 })
     
-    return batches
+    # Merge small batches (< 10 rows) with the next batch if they don't exceed max_rows_per_batch
+    merged_batches = []
+    i = 0
+    while i < len(batches):
+        current_batch = batches[i]
+        current_rows = current_batch['rows']
+        
+        # If current batch has less than 10 rows, try to merge with following batches
+        if len(current_rows) < 10:
+            # Try to merge with next batches until we reach max_rows_per_batch or run out of batches
+            merged_rows = [current_rows]
+            merged_group_values = [current_batch['group_value']]
+            j = i + 1
+            
+            while j < len(batches):
+                next_batch = batches[j]
+                next_rows = next_batch['rows']
+                # Calculate total rows: sum of all DataFrames in merged_rows + next_rows
+                total_rows = sum(len(df) for df in merged_rows) + len(next_rows)
+                
+                # Check if merging would exceed max_rows_per_batch
+                if total_rows <= max_rows_per_batch:
+                    merged_rows.append(next_rows)
+                    merged_group_values.append(next_batch['group_value'])
+                    j += 1
+                    # Stop if we've merged enough (at least 10 rows or reached a reasonable size)
+                    if total_rows >= 10:
+                        break
+                else:
+                    break
+            
+            # Combine all merged rows into a single DataFrame
+            if len(merged_rows) > 1:
+                combined_rows = pd.concat(merged_rows, ignore_index=True)
+            else:
+                combined_rows = merged_rows[0]
+            
+            # Use the first group_value, or None if all are None
+            combined_group_value = merged_group_values[0] if merged_group_values[0] is not None else None
+            
+            merged_batches.append({
+                'group_value': combined_group_value,
+                'rows': combined_rows
+            })
+            i = j  # Skip all batches we merged
+        else:
+            # Batch is already >= 10 rows, add as-is
+            merged_batches.append(current_batch)
+            i += 1
+    
+    return merged_batches
 
 
 def _call_azure_openai(rows_data, prompt_template, status_callback=None):
@@ -251,7 +302,7 @@ def _call_azure_openai(rows_data, prompt_template, status_callback=None):
         raise
 
 
-def _extract_information_for_batches(batches, columns, prompt_template, include_group_in_columns):
+def _extract_information_for_batches(batches, columns, prompt_template, include_group_in_columns, test_mode=False):
     """Extract information for all batches."""
     progress_container = st.container()
     
@@ -272,15 +323,24 @@ def _extract_information_for_batches(batches, columns, prompt_template, include_
         all_results = []
         total_batches = len(batches)
         
-        update_status(f"📊 Total batches to process: {total_batches}")
+        # Apply test mode limit if enabled
+        if test_mode:
+            max_batches_to_process = 5
+            batches_to_process = batches[:max_batches_to_process]
+            if total_batches > max_batches_to_process:
+                update_status(f"🧪 TESTING MODE: Processing only first {max_batches_to_process} batches (out of {total_batches} total)")
+        else:
+            batches_to_process = batches
         
-        for i, batch in enumerate(batches):
+        update_status(f"📊 Total batches to process: {len(batches_to_process)}")
+        
+        for i, batch in enumerate(batches_to_process):
             batch_num = i + 1
             group_value = batch['group_value']
             batch_rows = batch['rows']
             
             update_status(f"\n{'='*50}")
-            update_status(f"📦 Processing Batch {batch_num}/{total_batches}")
+            update_status(f"📦 Processing Batch {batch_num}/{len(batches_to_process)}")
             update_status(f"{'='*50}")
             
             if group_value is not None:
@@ -290,7 +350,7 @@ def _extract_information_for_batches(batches, columns, prompt_template, include_
             
             update_status(f"📊 Rows in batch: {len(batch_rows)}")
             
-            progress_bar.progress(i / total_batches)
+            progress_bar.progress(i / len(batches_to_process))
             
             # Format rows for prompt
             rows_data = _format_rows_batch_for_prompt(
@@ -331,7 +391,7 @@ def _extract_information_for_batches(batches, columns, prompt_template, include_
                 log_container.empty()
                 raise ValueError(f"Failed to process batch {batch_num}: {str(e)}")
             
-            progress_bar.progress((i + 1) / total_batches)
+            progress_bar.progress((i + 1) / len(batches_to_process))
         
         progress_bar.progress(1.0)
         update_status(f"\n{'='*50}")
@@ -462,6 +522,14 @@ def render():
         avg_rows_per_group = len(df) / unique_groups if unique_groups > 0 else 0
         st.metric("Avg Rows/Group", f"{avg_rows_per_group:.1f}")
     
+    # Test mode checkbox
+    test_mode = st.checkbox(
+        "🧪 Test Mode (Process only first 5 batches)",
+        value=False,
+        help="Enable to process only the first 5 batches for testing purposes",
+        key="test_mode_advanced"
+    )
+    
     # Generate extraction
     if st.button("🤖 Generate Extraction", type="primary"):
         # Prepare batches
@@ -475,7 +543,8 @@ def render():
                 batches,
                 selected_columns,
                 prompt_template,
-                include_group_in_prompt
+                include_group_in_prompt,
+                test_mode=test_mode
             )
             
             if results:

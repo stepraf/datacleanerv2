@@ -62,12 +62,41 @@ def _get_unique_values(series):
 
 
 def _batch_values(values, batch_size=100):
-    """Split values into batches of specified size, ordered alphabetically."""
+    """Split values into batches of specified size, ordered alphabetically.
+    Batches with less than 10 items are merged with the next batch if possible."""
     sorted_values = sorted(values)
     batches = []
     for i in range(0, len(sorted_values), batch_size):
         batches.append(sorted_values[i:i + batch_size])
-    return batches
+    
+    # Merge small batches (< 10 items) with the next batch if they don't exceed batch_size
+    # Use a more aggressive merging strategy: keep merging small batches forward
+    merged_batches = []
+    i = 0
+    while i < len(batches):
+        current_batch = batches[i]
+        
+        # If current batch has less than 10 items, try to merge with following batches
+        if len(current_batch) < 10:
+            # Try to merge with next batches until we reach batch_size or run out of batches
+            merged_batch = current_batch.copy()
+            j = i + 1
+            
+            while j < len(batches) and len(merged_batch) + len(batches[j]) <= batch_size:
+                merged_batch.extend(batches[j])
+                j += 1
+                # Stop if we've merged enough (at least 10 items or reached a reasonable size)
+                if len(merged_batch) >= 10:
+                    break
+            
+            merged_batches.append(merged_batch)
+            i = j  # Skip all batches we merged
+        else:
+            # Batch is already >= 10 items, add as-is
+            merged_batches.append(current_batch)
+            i += 1
+    
+    return merged_batches
 
 
 def _create_azure_client():
@@ -254,7 +283,7 @@ def _merge_mappings(mappings_list):
     return merged
 
 
-def _generate_simplification_mapping(unique_values, column_name, data_type):
+def _generate_simplification_mapping(unique_values, column_name, data_type, test_mode=False):
     """Generate simplification mapping for all unique values."""
     # Create progress container
     progress_container = st.container()
@@ -281,16 +310,25 @@ def _generate_simplification_mapping(unique_values, column_name, data_type):
             update_status(f"📊 Total: {len(unique_values)} unique values")
             update_status(f"📦 Splitting into {len(batches)} batches of ~100 values each")
             
+            # Apply test mode limit if enabled
+            if test_mode:
+                max_batches_to_process = 5
+                batches_to_process = batches[:max_batches_to_process]
+                if len(batches) > max_batches_to_process:
+                    update_status(f"🧪 TESTING MODE: Processing only first {max_batches_to_process} batches (out of {len(batches)} total)")
+            else:
+                batches_to_process = batches
+            
             all_mappings = []
             
-            for i, batch in enumerate(batches):
+            for i, batch in enumerate(batches_to_process):
                 batch_num = i + 1
                 update_status(f"\n{'='*50}")
-                update_status(f"📦 Processing Batch {batch_num}/{len(batches)} ({len(batch)} values)")
+                update_status(f"📦 Processing Batch {batch_num}/{len(batches_to_process)} ({len(batch)} values)")
                 update_status(f"{'='*50}")
                 
                 # Update progress bar
-                progress_bar.progress(i / len(batches))
+                progress_bar.progress(i / len(batches_to_process))
                 
                 # Show batch range
                 if len(batch) > 0:
@@ -309,7 +347,7 @@ def _generate_simplification_mapping(unique_values, column_name, data_type):
                     update_status(f"⚠️ Batch {batch_num} failed: No mapping returned")
                 
                 # Update progress bar
-                progress_bar.progress((i + 1) / len(batches))
+                progress_bar.progress((i + 1) / len(batches_to_process))
             
             progress_bar.progress(1.0)
             update_status(f"\n{'='*50}")
@@ -444,13 +482,22 @@ def render():
             data_type = str(df[selected_column].dtype)
             st.metric("Data Type", data_type)
         
+        # Test mode checkbox
+        test_mode = st.checkbox(
+            "🧪 Test Mode (Process only first 5 batches)",
+            value=False,
+            help="Enable to process only the first 5 batches for testing purposes",
+            key="test_mode_simplification"
+        )
+        
         # Generate simplification mapping
         if st.button("🤖 Generate Simplification Mapping", type="primary"):
             with st.spinner("Analyzing values with AI..."):
                 mapping = _generate_simplification_mapping(
                     unique_values, 
                     selected_column, 
-                    data_type
+                    data_type,
+                    test_mode=test_mode
                 )
                 
                 if mapping:
