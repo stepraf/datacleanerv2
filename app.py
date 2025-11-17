@@ -1,5 +1,5 @@
 import streamlit as st
-from tabs import import_data, one_to_one, one_to_many, one_to_n_errors, relation_graph, export_data, fill_na, covariance, apriori
+from tabs import import_data, one_to_one, one_to_many, one_to_n_errors, relation_graph, export_data, fill_na, covariance, apriori, ai_simplification, ai_advanced
 from components import sidebar
 
 
@@ -34,7 +34,7 @@ sidebar.render()
 st.title("Data")
 
 # Create tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["📥 Import Data", "1:1", "1:N", "1:N Errors", "Relation Graph", "Fill NA", "Covariance", "Apriori", "📤 Export Data"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs(["📥 Import Data", "1:1", "1:N", "1:N Errors", "Relation Graph", "Fill NA", "Covariance", "Apriori", "AI Simplification", "AI Advanced", "📤 Export Data"])
 
 with tab1:
     import_data.render()
@@ -61,5 +61,11 @@ with tab8:
     apriori.render()
 
 with tab9:
+    ai_simplification.render()
+
+with tab10:
+    ai_advanced.render()
+
+with tab11:
     export_data.render()
 

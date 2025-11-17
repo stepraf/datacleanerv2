@@ -385,7 +385,7 @@ def _create_covariance_visualization(cov_matrix, linkage_matrix, column_order):
     fig = plt.figure(figsize=(fig_width, fig_height))
     
     # Create grid layout: dendrogram on top, heatmap below
-    gs = fig.add_gridspec(2, 1, height_ratios=[1, 4], hspace=0.1)
+    gs = fig.add_gridspec(2, 1, height_ratios=[1, 4], hspace=0.5)
     
     # Top: dendrogram
     ax_dendro = fig.add_subplot(gs[0, 0])
@@ -395,8 +395,8 @@ def _create_covariance_visualization(cov_matrix, linkage_matrix, column_order):
     
     # Plot dendrogram with proper labels
     dendrogram(linkage_matrix, ax=ax_dendro, orientation='top', 
-               labels=cov_matrix.columns.tolist(), leaf_rotation=90, leaf_font_size=8)
-    ax_dendro.set_title('Hierarchical Clustering Dendrogram', fontsize=12, fontweight='bold')
+               labels=cov_matrix.columns.tolist(), leaf_rotation=45, leaf_font_size=8)
+    ax_dendro.set_title('Hierarchical Clustering Dendrogram', fontsize=12, fontweight='bold', pad=10)
     ax_dendro.set_xlabel('')
     ax_dendro.set_ylabel('Distance', fontsize=10)
     
