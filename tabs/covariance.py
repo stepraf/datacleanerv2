@@ -134,19 +134,33 @@ def _apply_mca(df, categorical_cols, n_components=None):
     mca_data = df[categorical_cols].copy()
     mca_data = mca_data.fillna('_MISSING_')  # MCA can handle this
     
+    num_rows = len(mca_data)
+    
+    # For large datasets (>10k rows), use sampling for MCA to reduce memory usage
+    # MCA creates a large indicator matrix internally, so sampling helps significantly
+    MCA_SAMPLE_SIZE = 10000
+    use_sampling = num_rows > MCA_SAMPLE_SIZE
+    
+    if use_sampling:
+        # Sample data for MCA computation
+        sample_size = min(MCA_SAMPLE_SIZE, num_rows)
+        mca_sample = mca_data.sample(n=sample_size, random_state=42)
+    else:
+        mca_sample = mca_data
+    
     # Determine number of components (use min of n_components or available)
     if n_components is None:
         # Use a reasonable default: min of 10 or number of categories - 1
-        max_components = sum([mca_data[col].nunique() for col in categorical_cols]) - len(categorical_cols)
+        max_components = sum([mca_sample[col].nunique() for col in categorical_cols]) - len(categorical_cols)
         n_components = min(10, max(1, max_components))
     
-    # Apply MCA to understand relationships between categories
+    # Apply MCA to understand relationships between categories (on sample)
     mca = prince.MCA(n_components=n_components, random_state=42)
-    mca_coords = mca.fit_transform(mca_data)
+    mca.fit(mca_sample)  # Fit on sample
     
     # Get column coordinates - these show where each category level is positioned
     try:
-        column_coords = mca.column_coordinates(mca_data)
+        column_coords = mca.column_coordinates(mca_sample)
     except:
         column_coords = None
     
@@ -165,13 +179,8 @@ def _apply_mca(df, categorical_cols, n_components=None):
         total = len(mca_data[col])
         frequencies = value_counts / total
         
-        # Map each row's category to its frequency
-        for row_idx in range(num_rows):
-            cat = str(mca_data.iloc[row_idx, col_idx])
-            if cat in frequencies.index:
-                column_representations[row_idx, col_idx] = frequencies[cat]
-            else:
-                column_representations[row_idx, col_idx] = 0.0
+        # Vectorized mapping: use pandas map() instead of row-by-row iteration
+        column_representations[:, col_idx] = mca_data[col].map(frequencies).fillna(0.0).values
     
     # Now refine using MCA column coordinates if available
     # This adds MCA insights while preserving individual column identities
@@ -199,13 +208,11 @@ def _apply_mca(df, categorical_cols, n_components=None):
                     scale_values = (scale_values - scale_values.mean()) / scale_values.std()
                     scale_dict = {str(cat): scale_values[i] for i, cat in enumerate(unique_categories)}
                     
-                    # Combine frequency encoding with MCA scaling
-                    for row_idx in range(num_rows):
-                        cat = str(mca_data.iloc[row_idx, col_idx])
-                        freq_val = column_representations[row_idx, col_idx]
-                        mca_scale = scale_dict.get(cat, 0.0)
-                        # Weighted combination: 70% frequency, 30% MCA scale
-                        column_representations[row_idx, col_idx] = 0.7 * freq_val + 0.3 * (mca_scale + 1) / 2
+                    # Vectorized combination: use pandas map() instead of row-by-row iteration
+                    freq_vals = column_representations[:, col_idx]
+                    mca_scales = mca_data[col].map(scale_dict).fillna(0.0).values
+                    # Weighted combination: 70% frequency, 30% MCA scale
+                    column_representations[:, col_idx] = 0.7 * freq_vals + 0.3 * (mca_scales + 1) / 2
     
     # Create dataframe with original categorical column names
     mca_coords_df = pd.DataFrame(
@@ -453,7 +460,8 @@ def calculate_covariance_analysis(selected_columns, drop_na=False,
     Returns:
         dict with analysis results
     """
-    df = st.session_state.processed_df.copy()
+    # Use view instead of copy when possible to save memory
+    df = st.session_state.processed_df
     
     # Prepare data
     work_df, numeric_cols, categorical_cols, na_info = _prepare_data(
@@ -467,11 +475,12 @@ def calculate_covariance_analysis(selected_columns, drop_na=False,
     if not numeric_cols and not categorical_cols:
         return None
     
+    # Store minimal data in results to reduce memory usage
     results = {
         'numeric_cols': numeric_cols,
         'categorical_cols': categorical_cols,
         'na_info': na_info,
-        'work_df': work_df
+        'num_rows': len(work_df),  # Store row count instead of full dataframe
     }
     
     # Apply MCA to categorical columns
@@ -482,17 +491,18 @@ def calculate_covariance_analysis(selected_columns, drop_na=False,
         with st.spinner("Applying Multiple Correspondence Analysis (MCA) to categorical columns..."):
             mca_coords, mca_model, mca_column_mapping = _apply_mca(work_df, categorical_cols, mca_components)
             if mca_coords is not None:
-                results['mca_coords'] = mca_coords
-                results['mca_model'] = mca_model
+                # Don't store large MCA objects in results to save memory
                 results['mca_column_mapping'] = mca_column_mapping
                 results['mca_explained_inertia'] = mca_model.explained_inertia_ if hasattr(mca_model, 'explained_inertia_') else None
+                # mca_coords and mca_model are only needed temporarily
     
     # Prepare numeric columns (will be standardized together with categorical in _combine_features)
     numeric_df = None
     if numeric_cols:
         # Just get the numeric data, standardization happens in _combine_features
-        numeric_df = work_df[numeric_cols].copy()
-        results['numeric_df'] = numeric_df
+        # Use view when possible, only copy if needed
+        numeric_df = work_df[numeric_cols]
+        # Don't store in results to save memory
     
     # Combine features (this will standardize everything together)
     with st.spinner("Combining and standardizing features..."):
@@ -543,7 +553,7 @@ def display_analysis_results(results):
         st.metric("Total Features", total_features)
     
     with col4:
-        st.metric("Rows Used", len(results['work_df']))
+        st.metric("Rows Used", results.get('num_rows', len(results['feature_df'])))
     
     # Display NA information
     na_info = results['na_info']
@@ -562,12 +572,11 @@ def display_analysis_results(results):
         st.write("**Categorical Columns:**", ", ".join(results['categorical_cols']))
     
     # Display MCA information if applicable
-    if 'mca_model' in results and results['mca_model'] is not None:
+    if 'mca_explained_inertia' in results and results['mca_explained_inertia'] is not None:
         st.subheader("MCA Information")
-        mca_coords = results['mca_coords']
-        st.write(f"MCA Components: {mca_coords.shape[1]}")
         if results.get('mca_explained_inertia') is not None:
             explained = results['mca_explained_inertia']
+            st.write(f"MCA Components: {len(explained)}")
             total_explained = sum(explained[:min(10, len(explained))]) * 100
             st.write(f"Explained Inertia (first 10 components): {total_explained:.2f}%")
     
