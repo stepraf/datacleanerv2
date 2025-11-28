@@ -1,0 +1,119 @@
+Vendor;Product Families / Model Series;Aliases / Naming Conventions
+Actiontec;T-series DSL gateways (T3200/T3260), GT/ C3000/ C4000 series fiber & DSL gateways, ECB MoCA adapters, WEB Wi-Fi extenders;“T32xx”, “C3000/C4000”, “GT784WN”, “WEB7200”, “ECB6xxx MoCA”
+ADB (Advanced Digital Broadcast);DV / VV series gateways, GPON/EPON ONTs, DOCSIS E3xx gateways, Wi-Fi extenders, IPTV STB;“VVxxxx”, “DVxxxx”, “E3xx DOCSIS”, “ADB ONT”, “ADB STB”
+ADTRAN;Total Access TA900/TA900e series, SDG 800/8600/8700/9000 series, NetVanta 3000/4000/6000 routers, SmartOS gateways;“TA-900”, “SDG <series>”, “NetVanta <series>”, “SmartOS CPE”
+Adtran;SDX/TA ONT series (100/300/400/600), SmartRG gateways (SR5xx/SR800), Mosaic 5G FWA CPE, carrier fiber units;“SDX-0xx”, “TA-0xx”, “SR5xx/SR8xx”, “Mosaic 5G CPE”, “Adtran ONT/ONU”
+Advantech;ICR series industrial routers (ICR-3xx/4xx/8xx), SmartFlex/SmartMotion, IXM gateways;“ICR-3xx/4xx/8xx”, “SmartFlex”, “SmartMotion”, “IXM”
+AeroHive (Extreme Networks);HiveAP/HiveRouter series, BR routers;“HiveAP <model>”, “BRxxx”
+Airties;Air series mesh nodes (Air 4930/4960/4970), Extenders/Smart Wi-Fi units, ISP-branded mesh units;“Air <model>”, “Smart WiFi Extender”, “ISP Mesh by Airties”
+Alpha Networks;DOCSIS gateways, fiber ONTs, Wi-Fi routers (AX/AC series), OEM for ISPs;“AlphaGW-xxxx”, “ONT <model>”, “AX/AC router”
+Altice Labs;FiberGate ONTs (FGW), GponGate series, routers GWxx, MEO-branded CPE;“FGW/ONT”, “GponGate <model>”, “GWxx Altice”
+Arcadyan;VRV/VGV/VH series gateways, AW/AR series LTE/5G CPE, IAP Wi-Fi extenders, GPON ONT series;“VRV/VGV/VH-xxxx”, “AW/AR 4G/5G CPE”, “Arcadyan IAP”, “Arcadyan ONT”
+Arcadyan (expanded);DSL/FTTH gateways (VRV/VGV/VH series), 4G/5G CPE (AW/AR series), extenders (IAP-xxxx), OEM SKUs;“VRV/VGV/VH-xxxx”, “AW/AR 4G/5G CPE”, “IAP-xxxx extender”, “Arcadyan OEM ISP SKU”
+Arris/Comcast OEM Lines;TG/TS/CM DOCSIS gateways, Xfinity xFi XB6/XB7/XB8/XB9 (OEM: Technicolor, Arcadyan, CommScope);“XB6/XB7/XB8/XB9”, “TGxxxx/TMxxxx”, “ISP OEM SKUs”
+Askey;RTV/RTF/RTG DOCSIS/GPON gateways, RAC2V series (ISP custom), Mesh Wi-Fi units (Airties-powered), 5G/LTE CPE;“RTV/RTF/RTG”, “RAC2V1K/2K/3K”, “Askey Mesh”, “Askey 5G CPE”
+Asotel / Alpha Telecom OEM;GPON/EPON ONTs, Wi-Fi gateways (AX/AC lines), ISP-custom CPE;“GPON ONT <model>”, “AX/AC GW”, “ISP OEM Asotel”
+ASUS / Askey;ASUS RT/GT/TUF gaming routers, ASUS 4G/5G routers (4G-AC68U, 5G-AC/AX), Askey 5G FWA gateways, RAC2V1K/RT series ISP CPE;“RT-AC/AX/BE”, “GT-ROG series”, “TUF-Gaming routers”, “ASUS 4G/5G router”, “Askey 5G CPE”, “RAC2V1K”
+AT&T OEM (BGW/PACE/Arris);BGW210/BGW320 gateways, Pace 5268, Humax/Arris/Arcadyan OEM Wi-Fi 6/6E;“BGW210/320”, “Pace 5268”, “AT&T OEM <model>”
+AVM (FRITZ!Box);FRITZ!Box cable/DSL/fiber routers (75xx, 66xx, 56xx, 55xx series), FRITZ!Repeater line, FRITZ!WLAN, FRITZ!Fon;“FRITZ!Box <model>”, “FRITZ!Repeater <model>”, “FRITZ!WLAN”, “FRITZ!Fon”
+BEC / Billion Electric;RidgeWave 4G/5G CPE series (6200/6800/8700), BEC MX series, LTE outdoor CPE, G.fast/VDSL gateways;“RidgeWave <model>”, “MX-series”, “BEC 4G/5G outdoor CPE”, “Billion <model>”
+BT (UK) OEM;SmartHub 2/3/Plus, BT Mesh Discs (Airties/Alcatel/Nokia OEM);“SmartHub 2/3/Plus”, “BT Discs”
+Cambium (FWA-focused);PMP 450 subscriber modules, ePMP subscriber CPE (Force 180/200/300), cnHeat FWA equipment, 5G cnRanger;“PMP450”, “Force 180/200/300”, “cnRanger 5G”
+Cambium Networks;cnPilot routers, cnRanger LTE CPE, cnWave 60GHz CPE, ePMP Force CPE series, XV Wi-Fi, cnMatrix edge, 450/450b subscriber modules;“cnPilot R”, “cnRanger CPE”, “Force 300/400”, “450b”, “cnWave CPE”, “XV Wi-Fi”
+CBN (China Broadcasting Network);FTTH gateways, ONTs, DOCSIS/Cable CPE for China MSOs;“CBN ONT”, “CBN Cable Modem”
+Cisco;ISR 800/900/1000/4000 series, Meraki MX series, Meraki Z series, Catalyst IR/CG industrial routers, SMB RV series;“ISR <series>”, “Cisco ISR gateway”, “Meraki MX/Z”, “CG/IR industrial router”, “RV-series SMB router”
+CommScope / ARRIS;TG series, DG series, NVG series, MG series, Touchstone series, SURFboard SB series, SURFboard SBG series, VAP series (video AP), VIP series (IP STB), DCX series (STB), CM/MTA lines;“ARRIS gateway”, “ARRIS TGxxxx”, “SB/SBGxxxx”, “Touchstone modem”, “CommScope RG”, “VIP/DCX set-top”
+Compal / Arcadyan OEM Networks (global ISP supply);DOCSIS CPE for Comcast/Liberty/Europe MSOs, FTTH ONTs, Wi-Fi 6/6E OEM gateways;“CH/CB/CG series”, “GPON OEM”, “Wi-Fi 6 OEM GW”
+Compal Broadband;CH/CB series DOCSIS gateways (CH7465/CBL), FTTH gateways, Wi-Fi routers;“CH/CB-xxxx”, “Compal FTTH”, “Compal Wi-Fi6 GW”
+Comtrend;VR/GR/GP series GPON/xDSL gateways, WAP Wi-Fi AP series, NL/NVR routers, 4G/5G CPE;“VR-xxxx”, “GR/GP-xxxx”, “WAP-xxxx”, “NL-xxxx”, “Comtrend LTE/5G”
+Cradlepoint (Ericsson);IBR series (IBR600/IBR900), E300/E3000 enterprise gateways, R1900/R2100 5G, W-series 5G outdoor units;“IBR600/IBR900/IBR1700”, “E300/E3000”, “R1900/R2100”, “W1850/W2005”
+Cudy;AX/AC routers, LT/LT-id series LTE/5G CPE, mesh systems;“AX/AC <model>”, “LT500/ LT700”, “Cudy Mesh”
+D-Link;DIR routers, EXO routers (DIR-Xxxxx), DWR LTE/5G routers, Covr mesh series, DSL-xxx modem/gateways, DAP AP/extenders, DIR/DSL series Wi-Fi routers, DWR 4G/5G CPE, COVR mesh series, DSL-G xDSL gateways;“DIR-xxxx”, “EXO”, “DWR-xxxx LTE router”, “Covr <model>”, “DSL-xxxx”, “DAP-xxxx extender”, “DWR-xxxx LTE/5G”, “COVR <model>”
+Datacom (Brazil);DM/DF/ONU series, xDSL & GPON gateways;“DMxxxx”, “DFxxxx”, “Datacom ONT”
+Digi International;Digi EX/IX industrial routers, Digi Connect series, TX54/TX64 5G, WR/WR54 LTE routers;“EX/IX <model>”, “Connect <model>”, “TX54/TX64”, “WR54/WR31”
+Digisol (India);DG series routers, GPON ONT/ONU, mesh systems;“DG-xxxx”, “Digisol ONT”, “Digisol Mesh”
+DrayTek;Vigor routers (Vigor 2xxx/27xx/28xx/29xx), LTE CPE (VigorLTE), mesh (AP9xx), VPN gateways;“Vigor <series>”, “VigorLTE”, “AP9xx”, “VigorPro”
+EE / UK 5GEE CPE;5G CPE branded for EE / BT, often from Nokia, Sagemcom, Arcadyan;“5GEE <model>”, “EE 5G Home CPE”
+EnGenius;ESR/EWS Wi-Fi routers, Fit series, outdoor CPE (ENH/ENS), LTE CPE;“ENH/ENS”, “Fit <model>”, “ESRxxx”, “EnGenius LTE CPE”
+Enterprise-lite CPE (mesh / SMB);Zyxel Nebula mesh (NWA/NWAxx), EnGenius Fit, Cambium XV Gateway;“NWA/NWAxx Nebula”, “Fit <model>”, “XV Gateway”
+Ericsson;5G FWA indoor units (NIU), 5G outdoor units (ODU), ER series enterprise routers, W-series fixed wireless terminals;“NIU <model>”, “ODU <model>”, “Ericsson FWA CPE”, “W-series fixed wireless terminal”
+FAST (HiSilicon-based);FAST smart routers (AC/AX series), 5G CPE, IPTV CPE;“FAST <model>”, “5G FAST CPE”
+FiberHome;AN/HS series ONT/ONU, HG6xx/HG8xx gateway series, FH/LTE CPE, 5G FWA CPE models, AN/AG ONU/ONT series (AN5506/AN6000), wireless gateways, 4G/5G CPE;“HG6xx/HG8xx”, “FiberHome ONT/ONU”, “FH-LTE CPE”, “FiberHome 5G FWA CPE”, “AN5506/AN6000”, “FiberHome Wi-Fi GW”, “FiberHome 5G CPE”
+Four-Faith;F3x industrial router series, F8x IoT gateways, LTE CPE FWR/FWR7xx series, 5G CPE FG/FWG series;“F3x”, “F8x gateway”, “FWRxx LTE CPE”, “FG/FWG 5G CPE”
+Gemtek;LTE/5G indoor CPE, outdoor FWA units, GPON ONT/ONU;“Gemtek LTE CPE”, “Gemtek 5G CPE”, “Gemtek ONT”
+Genexis (EU);Fiber ONTs (Pulse/Platinum/Titan), residential gateways (Pure/City series), Wi-Fi 6 CPE;“Pulse/Platinum/Titan”, “Pure/City”
+Greenwave Systems;C4000/C6000 gateways (various ISP SKUs), Extenders AX/AC series, IoT-enabled gateways, GPON units;“C4000LG/LZ/XG”, “AX/AC extender”, “ISP-specific GW”, “Greenwave ONT”
+HiLink (Honor / Huawei-OEM);HiLink-branded routers on both Wi-Fi and LTE, CPE for Honor-branded ISPs, HiLink mesh;“HiLink Router <model>”, “HiLink CPE”
+Hitachi-Cable / Hitachi-Maxell ODM;DOCSIS cable modems, fiber ONTs, operator OEM gateways;“DOCSIS HM-xxxx”, “Hitachi ONT”, “OEM ISP Gateway”
+Hitron;CODA DOCSIS gateways, CGN/CGNM cable gateways, HT-EMTA lines, HIT/MOD series modems, LTE/5G CPE series;“CODA-xxxx”, “CGN/CGNM-xxxx”, “Hitron EMTA”, “Hitron 5G/LTE CPE”, “Hitron DOCSIS gateway”
+Hitron Technologies;CODA DOCSIS gateways, CGN3/CGNM/CGN series, HTN fiber gateways, 4G/5G FWA units, MoCA bridges;“CODA-xxxx”, “CGN3/CGNM/CGN”, “HTN-Fiber”, “Hitron 5G CPE”, “MoCA-xxxx”
+HiWiFi / Newifi;Newifi 3/4 series Wi-Fi routers, custom OpenWRT OEM;“Newifi 3/4”, “HiWiFi <model>”
+Huawei;EchoLife HG/HS/EG series gateways, HN/HA series ONT, CPE Pro/Pro 2 (H112/H122), 5G CPE Win/Win2, B-series LTE CPE;“EchoLife HG/HS/EG”, “HN/HA ONT”, “CPE Pro”, “H112/H122”, “5G CPE Win/Win2”, “B3xx/B5xx LTE CPE”
+Huawei CPE (FWA extension);CPE Pro/Pro 2 (H112/H122), 5G CPE Win/Win2, B3xx/B5xx series LTE, H180/H190 5G indoor;“H112/H122”, “Win/Win2”, “B535/B818”, “H18x/H19x”
+Huawei ONT (full detail);"EchoLife ONT: HG8xx/HG9xx/HS8xx/HS8xxx; OptiXstar ONT/HN8xx/HN82xx/HN85xx; Wi-Fi 6 ONT: OptiXstar HN8546/HN8245Q/HN8145V";“HG8xx/HG9xx”, “HS8xx/HS86xx”, “HN82xx/HN85xx”, “OptiXstar <model>”, “Q/V family Wi-Fi 6 ONT”
+Humax;HG series gateways, HGB/HGD series broadband gateways, LTE/5G CPE series, Quantum set-top boxes, Hx/STB lines, GPON & DOCSIS gateways, Wi-Fi 6/6E gateways, LTE/5G CPE, STB units;“Humax HGxxxx”, “Humax broadband gateway”, “Humax LTE/5G CPE”, “Quantum STB”, “HGB/HSB”, “Humax 5G CPE”, “DOCSIS Humax”
+iBall Baton (India);iB-WRA routers, FTTH ONT OEM, 4G CPE;“iB-WRAxxx”, “iBall ONT”
+InHand Networks;IR series industrial routers (IR302/IR305/IR6xx), IG intelligent gateways, ER enterprise routers, InRouter cellular series;“InRouter <model>”, “IR3xx/IR6xx”, “IG Gateway”, “ER Gateway”
+Inseego;FX2000/FX3100/FX2000e 5G CPE, Wavemaker FG/Wavemaker series, MiFi mobile hotspot series (MiFi 8000/8800/Pro), S-series enterprise gateways;“FXxxxx”, “Wavemaker FG”, “MiFi <model>”, “S2000/S4100 enterprise gateway”
+Intelbras (LATAM);WiFiber OLT/ONT, Action RG series routers, Twibi mesh series;“WiFiber <model>”, “Action RG <model>”, “Twibi Mesh”
+Kaon;CG series gateways, RG series residential gateways, KSTB/KSTB-2 STB lines, KHG home gateways, GPON/10G-PON ONTs;“CG/RG-xxxx”, “KSTB/KSTB2”, “KHG-xxxx”, “Kaon ONT/ONU”
+Kaon Media (expanded);RG series residential gateways, CG/CGN DOCSIS series, KSG fiber gateways, Kaon Mesh Wi-Fi, STB: KSTB/KC/KD series;“RG-xxxx”, “CG/CGN-xxxx”, “KSG-xxxx”, “Kaon Mesh”, “KSTB/KC/KD <model>”
+KuWFi;LTE/5G CPE, outdoor Wi-Fi CPE (CPE450/CPE600), travel routers;“CPE450/600”, “KuWFi 4G/5G CPE”, “Wi-Fi Extender <model>”
+Latin-America ISP Hardware OEM;Local OEM gateways, ONTs, FWA units (Latin-OEM lines via Compal, Arcadyan, MitraStar);“LATAM GW <model>”, “Latam ONT”, “Latam 4G CPE”
+Linksys;EA/AX series routers, Velop mesh series, MR/ Hydra Pro Wi-Fi 6/6E series, MX/MR Velop nodes;“EAxxxx”, “AXxxxx”, “Velop <model>”, “MR/ Hydra Pro”
+Longsung (SIMCom subsidiary);LTE/5G CPE (UFi/UFE series), industrial routers (Mxx series), USB data terminals;“UFi/UFE”, “Mxxx industrial router”
+Mercury (micro-ODM);AC/AX Wi-Fi routers (MRxx), LTE CPE (MW / MF series), mesh nodes (MS);“MR-xxxx”, “MW-xxxx”, “MF-xxxx”, “MS Mesh”
+MikroTik;RouterBOARD (RB series), hAP series (hAP ac/hAP ax), Audience mesh, Chateau 4G/5G CPE, LHG outdoor CPE, SXT/DiscLite;“RBxxxx”, “hAP <model>”, “Audience”, “Chateau LTE/5G”, “LHG-LTE/LHG-5G”, “SXT/DiscLite”
+Milesight;UR industrial 4G/5G routers (UR32/UR41/UR75), UG edge gateways, CPE/Wi-Fi series, cellular 5G CPE;“UR32/UR41/UR75”, “UG Edge Gateway”, “Milesight 5G CPE”
+MitraStar (Unizyx / Zyxel Group);GPT/GPR/GRV GPON/10G-PON gateways, DSL-xxxx series, WLAN gateway series, LTE/5G CPE;“GPT-xxxx”, “GPR-xxxx”, “GRV-xxxx”, “DSL-xxxx”, “MitraStar 5G CPE”
+MitraStar (Zyxel subsidiary);DSL/fiber gateways (GPT/PDG/HT/VR series), DOCSIS GW, MESH APs (EMG/MG series);“GPT-xxxx”, “PDG-xxxx”, “HT-xxxx”, “EMG/MG-xxxx”, “MitraStar DOCSIS”
+Motorola (Zoom Telephonics);MB/MG cable modems & gateways, MH Wi-Fi mesh, 4G/5G CPE;“MBxxxx”, “MGxxxx”, “MHxxxx”, “Motorola 5G CPE”
+MultiTech;MultiConnect rCell (MTR), MultiConnect eCell, MultiConnect FX, industrial modems/routers;“MTR <model>”, “eCell <model>”, “FXxxxx”, “MultiConnect <family>”
+NetComm Wireless;NF/NL series fixed wireless CPE, 4G/5G ODU/IDU, NTC industrial routers;“NFxx”, “NLxx”, “NTC-xxxx”, “IDU/ODU <model>”
+Netgear;Nighthawk routers (R/AX series), Orbi mesh (RBK/RBKx series), LAX/LM/LBR 4G/5G CPE, DOCSIS CM/CB series, Nighthawk R/RS/AX/BE series, Nighthawk M (mobile hotspot) series, Orbi RBK/RBR/RBS series, CM/CAX cable modem series, LBR cellular gateway, Insight BR/SR gateways;“Nighthawk R/AX <model>”, “Orbi RBK/RBE <model>”, “LAX20/LBR20”, “CM/CB-xxxx”, “Nighthawk <model>”, “AX/BE”, “Nighthawk M5/M6/M7”, “Orbi <model>”, “RBK/RBR/RBS”, “CAX/CMxxxx”, “LBR-20”, “Insight gateway”
+Netis;WF series routers (WF2xx/WF24xx/WF28xx), DL series DSL gateways, MW mesh series, 4G/5G LTE routers;“WF2xx/WF24xx/WF28xx”, “DL-xxxx”, “MW3/MW12”, “Netis LTE/5G CPE”
+Nexxt Solutions;Nyx/Wi-Fi routers, Nebula mesh, 4G CPE;“Nyx <model>”, “Nebula Mesh”, “Nexxt 4G CPE”
+Nokia;ONT/ONU series (G-010/G-240, XS-010/XS-020), Beacon Wi-Fi mesh series, FastMile 4G/5G CPE/gateways, Home Gateway 7xx series;“G-010/G-240”, “XS-01x”, “FastMile 4G/5G”, “Beacon <model>”, “HGW 7xx”
+Nokia (expanded);XS-0xx/XG-0xx ONTs, G-010/G-240/G-2xx legacy ONTs, 7368 ISAM ONT family, Beacon G6/G7 Wi-Fi, FastMile 4G/5G indoor & outdoor;“XS-010/020”, “XG-0xx”, “G-010/G-240/G-2xx”, “7368 ONT”, “Beacon G6/G7”, “FastMile <model>”
+OpenMesh (now Datto);OM2P/OM5P access points, CloudTrax gateways;“OM2P/OM5P”, “CloudTrax gateway”
+Optus / Telstra / Australian 5G CPE;Carrier-branded 5G Gateway, FWA units (manufactured by Nokia / Huawei / ZTE);“Optus 5G Gateway”, “Telstra 5G Home Internet Device”
+Pace (Arris legacy);5268AC/5031NV gateways, DOCSIS/DSL CPE, IPTV STB;“Pace <model>”, “Arris-Pace Gateway”
+Peplink;Balance routers, MAX BR/MAX HD cellular routers, MAX Transit/Mobile series, Surf SOHO series, 5G BR/HD;“Balance <model>”, “MAX BR/HD”, “Transit Duo”, “Surf SOHO”, “Peplink 5G router”
+Phicomm;H1/H2 routers, PON ONTs, 4G/5G CPE, mesh gateways;“H1 / H2 <model>”, “Phicomm ONT”, “Phicomm 5G CPE”
+Plume;SuperPod tri-band mesh series, “OpenSync-enabled CPE”, HomePass gateways (OEM through ISPs);“SuperPod <gen>”, “OpenSync CPE”, “Plume Mesh”
+Qihoo / 360 (Shenzhen);Mesh routers, smart CPE, smart home gateway (360 Router);“360 Router <model>”, “Smart Gateway 360”
+Robustel;R3000/ R3010/ R1500 routers, R2000 series, EG industrial gateways, M1000 terminals, CloudEdge CPE kits;“R3000/R3010”, “R1500”, “R2000/R2000LG”, “EG series”, “M1000”
+Ruckus (CommScope);R-series APs (R510/R550/R650/R750/R850), Unleashed AP acting as CPE, ICX switches;“Rxxx Unleashed”, “Rxxx <variant>”, “ICX <model>”
+Sagemcom;F@ST broadband gateways (F@ST 3xxx/5xxx/6xxx/56xx/56xx), PON ONT/ONU series, 4G/5G CPE, Video Soundbox/STB series;“F@ST <model>”, “F-xxxxxx ISP SKU”, “Sagemcom 5G CPE”, “Video Soundbox”, “Sagemcom ONT/ONU”
+Sagemcom (expanded);F@ST 3xxx/4xxx/5xxx/6xxx gateways, CS/CX series, xPON ONTs (ONT2/ONT4/ONTSG), 4G/5G FWA (Sagemcom 5G Box), Wi-Fi 6/6E/7 models;“F@ST <model>”, “CS/CX series”, “ONT2/ONT4/ONTSG”, “Sagemcom 5G Box”, “Wi-Fi 6E/7 F@ST”
+Sercomm;FG800/FG1000 5G CPE series, LTE CPE series, DOCSIS gateways, GPON/EPON ONT lines, STB platforms;“FG800/FG1000”, “Sercomm LTE CPE”, “DOCSIS gateway”, “GPON/EPON ONT”, “Sercomm STB”
+Sierra Blue (formerly Option Wireless);CloudGate LTE/5G routers, industrial gateways;“CloudGate <model>”
+Sierra Wireless (Semtech);AirLink LX/EX/GX/MP/ES series routers, XR 5G series (XR80/XR90), RV/RV50X LTE routers, FX routers & gateways;“AirLink <series>”, “XR80/XR90”, “RV/RV50X”, “FX30/FX40”
+Suttle / Positron Access;G.hn Access Multipliers (GAM), MDUs CPE, FTTdp units;“GAM-xxxx”, “Suttle G.hn CPE”, “FTTdp Unit <model>”
+T&W (T&W Industry);GPON/EPON ONTs, Wi-Fi 5/6 home gateways, ISP-branded CPE;“T&W ONT”, “G-EPON <model>”, “Wi-Fi6 OEM”
+T-Mobile / US-Carrier Branded 5G CPE;5G Home Internet CPE branded “T-Mobile 5G Home Internet,” units by Nokia / Sagemcom / Askey;“T-Mobile 5G Home CPE”, “T-Mobile 5G Gateway (Nokia/Sagemcom)”
+Technetix;DOCSIS gateways, cable modems, fiber ONTs, customer FWA CPE;“DOCSIS GW-xxxx”, “Technetix ONT”, “Technetix FWA CPE”
+Technicolor / Vantiva;Home Gateways (CGM/CGI/CGA series), DOCSIS gateways (TCxxxx / CGA/TG series), xPON ONTs (FG, FGX, GM series), 4G/5G FWA (WX/TWX series), Wi-Fi extenders (WE series), Android/Operator STB (UIW/USW/KM/KM9/KM7 etc.);“TC<model>”, “CGA/CGM/CGI-xxxx”, “TG-xxxx”, “ONT FG/GM series”, “WX-5G/WX-4G”, “WE extenders”, “UIW/USW STB”, “KM7/KM9 Android STB”
+Televes;Fiber ONTs, coax home gateways, Wi-Fi 6 routers, optical network terminals;“Televes ONT”, “NeXOS/GW”, “Wi-Fi6 Televes router”
+Telrad Networks;BreezeCOMPACT LTE base + CPE, BreezeU-100/200 subscriber CPE, LTE UE CPE series;“BreezeU”, “BreezeCOMPACT CPE”, “Telrad LTE CPE”
+Teltonika Networks;RUT industrial router series (RUT2xx/9xx/Xxx), RUTX series (RUTX08/X09/X10/X11), TRB gateways (TRB1xx), TCR 5G CPE, OTD outdoor units;“RUT2xx/9xx”, “RUTX <model>”, “TRB1xx”, “TCR100/300”, “OTD outdoor CPE”
+Tenda;AC/AX Wi-Fi routers, Nova mesh MW series, 4G/5G CPE (4G06/5G03), extenders A/EX series;“AX/AC <model>”, “Nova MW3/MW6/MW12”, “4G06/4G09”, “5G03”, “EX extenders”
+Tenda (OEM lines);OEM Wi-Fi 6/6E/7 routers, 4G/5G gateway OEM, mesh hardware for ISPs;“Tenda OEM <model>”, “4G06-OEM”, “5G-OEM”, “Tenda Mesh”
+TOTOLINK;A series routers (Axxxx), N series routers (Nxxxx), X series Wi-Fi 6 routers, LTE/5G CPE, extenders EX series;“Axxxx”, “Nxxxx”, “X-series”, “EX extender”, “TOTOLINK LTE/5G CPE”
+TOTOLINK (OEM variants);A/N/X routers, EX extenders, ISP-custom AX gateways;“Axxxx/Nxxxx/Xxxxx”, “EX extenders”, “TOTOLINK OEM ISP”
+TP-Link;Archer AX/AXE/BE series, Archer C series, Archer MR (LTE/5G) series, Deco M/X/XE/X50-5G series, Omada ER gateway series, RE extenders, TL-WR legacy routers;“Archer <model>”, “Archer AX/BE”, “MR LTE/5G CPE”, “Deco <model>”, “Deco 5G gateway”, “Omada ER”, “RE-xxxx extender”, “TL-WRxxxx”
+TP-Link (expanded);Archer routers (AX/AC/Cxx series), Deco mesh (M/Mx/X series), OneMesh extenders, TL-MR LTE CPE, ER enterprise gateway series;“Archer AX/AC/Cx”, “Deco M/Mx/X”, “OneMesh extenders”, “TL-MRxxxx LTE”, “ER60x/ER7212”
+Ubee Interactive;EVW/ UBC / U10C DOCSIS gateways, GPON ONTs, Wi-Fi6 gateways, FWA, DVW/EDW DOCSIS gateways, U10C/U11C modems, UBC/UBG series EuroDOCSIS gateways, Wi-Fi gateway series;“EVW32xx”, “UBC13xx”, “U10C”, “Ubee ONT”, “Ubee FWA”, “DVW-xxxx”, “EDW-xxxx”, “U10C/U11C series”, “UBC/UBG-xxxx”, “Ubee Wi-Fi gateway”
+Ubiquiti;UniFi Gateway series (UGW/UXG), UniFi Dream Machine (UDM/UDM-Pro/UDR), AirMax CPE (Loco/Rocket/NanoBeam/PowerBeam), LTU CPE, AmpliFi mesh series;“UGW/UXG”, “UDM/UDM-Pro/UDR”, “NanoBeam/NBE”, “Loco/PowerBeam/PBE”, “LTU-Lite/LTU-Pro”, “AmpliFi <model>”
+Ubiquiti (ISP-grade CPE separate);UISP Wave CPE, UISP AirFiber CPE (AF series), UISP PowerBeam, UISP NanoBeam, UISP LBE;“Wave CPE”, “AF-5/AF-24/AF-60”, “PowerBeam/PBE”, “NanoBeam/NBE”, “LiteBeam/LBE”
+Ubiquiti (OEM variants);UISP CPE (Wave/AirFiber), PowerBeam/NanoBeam OEM ISP SKUs, customized ISP-labeled Wi-Fi routers;“AF-xx”, “Wave-xx”, “PBE-xxx”, “NBE-xxx”, “ISP-Ubiquiti OEM”
+Vantiva (expanded full CPE coverage);"DOCSIS: CGA/CGI/CGM/TG/TC series; xDSL: DGA/TDG series; Fiber/PON: FG, GM, GH, ION series ONT/ONU; 4G/5G FWA: WX/TWX/WW series; Wi-Fi extenders: WE/WMB series; Mesh: MESH-xx / Wi-Fi 6/6E/7 units; Video STB: UIW/USW/KM7/KM9/KM2xx, Sapphire, AgileTV";“CGA/CGM/CGI/TG/TC-xxxx”, “FG/GM/GH ONT/ONU”, “WX/WMB/WX-4G/WX-5G”, “MESH-xxxxx”, “UIW/USW”, “KM7/KM9”, “Sapphire”, “AgileTV”
+Verizon OEM (ASK/NZ et al.);ASK-NCQ1338 5G CPE (Askey), ASK-RTL series, ARC-XC ODU/IDU, FiOS G3100/G4100 (Hitron/Arcadyan OEM);“ASK-NCQ1338”, “G3100/G4100”, “ARC-XC”, “5G Home CPE”
+Vodacom / Vodafone / South-Africa 5G CPE;Branded FWA CPE (Nokia / Huawei / ZTE), “Vodacom Home Internet”;“Vodacom 5G CPE”, “Vodafone Home Gateway”
+WAVLINK;AC/AX routers, outdoor CPE (WAVLINK Aerial series), extenders (WL-WN/WL-WE);“Aerial <model>”, “WL-WN/WL-WE extenders”
+Westermo;Merlin industrial LTE routers, Ibex/Orion wireless routers, Wolverine series;“Merlin <model>”, “Ibex <model>”, “Orion <model>”, “Wolverine <model>”
+YouHua / YOUHUA Tech;AC/AX routers, ONT/ONU OEM, home gateways;“YOUHUA <model>”, “OEM ONT”
+ZTE;ZXHN home gateways (F6xx/H2xx series), MC/MU 4G/5G indoor CPE, MF 4G routers, F41xx/F62xx ONT series, B/V IPTV STB;“ZXHN <series>”, “MC/MU 5G CPE”, “MF <model>”, “F41xx/F62xx ONT”, “ZTE B/V STB”
+ZTE CPE (FWA expansion);MC801A/MC8020/MC888 5G CPE, MU500/MF289 LTE CPE;“MC801A/8020/888”, “MU500”, “MF289”
+ZTE ONT (full detail);ZXHN F6xx/F8xx ONTs, F660/F680/F689/F870 series, FT8xx “Fiber Turbo” ONTs, ZXHN H series gateways;“F6xx/F8xx”, “F660/F680/F689”, “FT8xx”, “ZXHN Hxxx series”
+Zyxel;VMG/PMG/EX/NBG/AX series routers & gateways, NR 5G FWA series, LTE LTE-series CPE, GS-pon ONT/ONU, Multy mesh series;“VMG/PMG/EX”, “NBG/AX series”, “NR5101/Nxxxx 5G CPE”, “LTE <model>”, “Multy <model>”, “Zyxel ONT/ONU”

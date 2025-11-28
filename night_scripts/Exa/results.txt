@@ -1,0 +1,123 @@
+[Result(url='https://fccid.io/G95BGW620/User-Manual/User-Manual-pt-1-7602930', id='https://fccid.io/G95BGW620/User-Manual/User-Manual-pt-1-7602930', title='BGW620 Wi-Fi 7 XGS-PON Gateway User Manual  Vantiva USA', score=None, published_date='2024-08-26T00:00:00.000Z', author='FCC ID', image='', favicon=None, subpages=None, extras=None, text='# BGW620 Wi-Fi 7 XGS-PON Gateway User Manual Vantiva USA
+
+#### Vantiva USA Wi-Fi 7 XGS-PON Gateway
+
+#### Related Documents
+
+| | | |
+| --- | --- | --- |
+| | [User Manual pt. 2](https://fccid.io/G95BGW620/Users-Manual/User-Manual-pt-2-7602906) | Users Manual |
+| | [User Manual pt. 1](https://fccid.io/G95BGW620/Users-Manual/User-Manual-pt-1-7602907) | Users Manual |
+| | [Label Information](https://fccid.io/G95BGW620/Label/Label-Information-7602917) | ID Label/Location Info |
+| | [Internal Photos](https://fccid.io/G95BGW620/Internal-Photos/Internal-Photos-7602918) | Internal Photos |
+| | [External Photos](https://fccid.io/G95BGW620/External-Photos/External-Photos-7602919) | External Photos |
+
+Alternate Views: [PDF \\[Zoom\\]](https://fccid.io/G95BGW620/User-Manual/User-Manual-pt-1-7602930.iframe) [Download \\[PDF\\]](https://fccid.io/G95BGW620/User-Manual/User-Manual-pt-1-7602930.pdf)
+
+https://fccid.io/G95BGW620/User-Manual/User-Manual-pt-1-7602930.pdf
+
+| | |
+| --- | --- |
+| Document ID | 7602930 |
+| Application ID | E28oVwirQDYMOmIZUh0BaA== |
+| Document Description | User Manual pt. 1 |
+| Download: | [![BGW620 Wi-Fi 7 XGS-PON Gateway User Manual Vantiva USA](https://cdn-0.fccid.io/pdf.png)](https://fccid.io/G95BGW620/User-Manual/User-Manual-pt-1-7602930.pdf) |
+| Mirror Download \\[FCC.gov\\] | [![BGW620 Wi-Fi 7 XGS-PON Gateway User Manual Vantiva USA](https://cdn-0.fccid.io/pdf.png)](https://fccid.io/G95BGW620/User-Manual/User-Manual-pt-1-7602930/ViewExhibitReport.cfm) |
+| Short Term Confidential | No |
+| Permanent Confidential | No |
+| Supercede | No |
+| Document Type | User Manual |
+| Display Format | Adobe Acrobat PDF - pdf |
+| Filesize | 86.88kB (1085947 bits) |
+| Date Submitted | 2024-08-26 00:00:00 |
+| Date Available | 2024-08-27 00:00:00 |
+| Creation Date | 2024-08-09 10:10:16 |
+| Producing Software | Adobe PDF Library 17.0 |
+| Document Lastmod | 2024-08-09 10:10:19 |
+| Document Title | User Manual |
+| Document Creator | Adobe InDesign 19.5 (Windows) |
+| Document Author: | None |
+
+* * *
+
+x', summary=None), Result(url='https://fccid.io/G95BGW620', id='https://fccid.io/G95BGW620', title='FCC ID G95BGW620 Wi-Fi 7 XGS-PON Gateway by Vantiva USA LLC', score=None, published_date='2024-11-22T00:00:00.000Z', author='FCC ID', image='', favicon=None, subpages=None, extras=None, text='# FCC ID G95BGW620
+
+#### G95-BGW620, G95 BGW620, G95BGW620, G95BGW62O, G9SBGW620
+
+#### _Vantiva USA LLC_ Wi-Fi 7 XGS-PON Gateway **BGW620**
+
+An FCC ID is the product ID assigned by the FCC to identify wireless products in the market. The FCC chooses 3 or 5 character "Grantee" codes to identify the business that created the product.
+For example, the grantee code for **FCC ID: G95BGW620** is **[G95](https://fccid.io/G95)**. The remaining characters of the FCC ID, **BGW620**, are often associated with the product model, but they can be random. These letters are chosen by the applicant.
+In addition to the application, the FCC also publishes **_internal images, external images, user manuals, and test results_** for wireless devices. They can be under the "exhibits" tab below.
+
+##### Purchase on Amazon: [Wi-Fi 7 XGS-PON Gateway](http://target.georiot.com/Proxy.ashx?tsid=17750&GR_URL=http%3A%2F%2Fwww.amazon.com%2Fgp%2Fsearch%3Fie%3DUTF8%26camp%3D1789%26creative%3D9325%26index%3Delectronics%26keywords%3DWi-Fi%2B7%2BXGS-PON%2BGateway)![](https://ir-na.amazon-adsystem.com/e/ir?t=fccid0b-20&l=ur2&o=1)
+
+- Application: Wi-Fi 7 XGS-PON Gateway
+- Equipment Class: 6ID - 15E 6 GHz Low Power Indoor Access Point
+- Short Link: [fcc.id/G95BGW620](https://fcc.id/G95BGW620)
+- Sources: [FCC.gov](https://gov.fccid.io/G95BGW620) \\| [FCC.report](https://fcc.report/FCC-ID/G95BGW620)
+- Registered By: [Vantiva USA LLC - G95 (United States)](https://fccid.io/G95)
+Subscribe
+
+
+| App # | Purpose | Date | Unique ID |
+| --- | --- | --- | --- |
+| 1 | Original Equipment | 2024-08-27 | 0WSRj9TTLPAUnyFXD/LhYA== |
+| 2 | Original Equipment | 2024-08-27 | E28oVwirQDYMOmIZUh0BaA== |
+| 3 | Original Equipment | 2024-08-27 | ODUQcJ3rX/k6bvTiP5nwnw== |
+| 4 | Original Equipment | 2024-12-13 | fFexauSgEBbP2DAU70E03Q== |
+
+### Operating Frequencies
+
+| Frequency Range | Power Output | Rule Parts | Grant Notes | App # |
+| --- | --- | --- | --- | --- |
+| [2.402-2.48 GHz](https://fccid.io/frequency-explorer.php?lower=2402&upper=2480)![Bluetooth](https://cdn-0.fccid.io/images/Bluetooth.png) | 79.3 mW | [15C](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.c) | [CC](https://fccid.io/Grant-Note/CC) | [3.1](https://fccid.io/G95BGW620#Grant-TCB-3) |
+| [2.405-2.48 GHz](https://fccid.io/frequency-explorer.php?lower=2405&upper=2480) | 77.3 mW | [15C](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.c) | [CC](https://fccid.io/Grant-Note/CC) | [3.2](https://fccid.io/G95BGW620#Grant-TCB-3) |
+| [2.412-2.462 GHz](https://fccid.io/frequency-explorer.php?lower=2412&upper=2462)![2.4 GHz WiFi](https://cdn-0.fccid.io/images/WiFi.png) | 993.1 mW | [15C](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.c) | [CC](https://fccid.io/Grant-Note/CC), [MO](https://fccid.io/Grant-Note/MO) | [3.3](https://fccid.io/G95BGW620#Grant-TCB-3) |
+| [5.18-5.24 GHz](https://fccid.io/frequency-explorer.php?lower=5180&upper=5240)![5 GHz WiFi](https://cdn-0.fccid.io/images/WiFi-5GHz.png) | 975 mW | [15E](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.e) | [CC](https://fccid.io/Grant-Note/CC), [MO](https://fccid.io/Grant-Note/MO) | [2.1](https://fccid.io/G95BGW620#Grant-TCB-2) |
+| [5.26-5.32 GHz](https://fccid.io/frequency-explorer.php?lower=5260&upper=5320)![5 GHz WiFi DFS](https://cdn-0.fccid.io/images/5GHz-WiFi-DFS.png) | 242.7 mW | [15E](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.e) | [CC](https://fccid.io/Grant-Note/CC), [MO](https://fccid.io/Grant-Note/MO), [ND](https://fccid.io/Grant-Note/ND) | [2.2](https://fccid.io/G95BGW620#Grant-TCB-2) |
+| [5.5-5.72 GHz](https://fccid.io/frequency-explorer.php?lower=5500&upper=5720)![5 GHz WiFi](https://cdn-0.fccid.io/images/WiFi-5GHz.png) | 248.9 mW | [15E](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.e) | [CC](https://fccid.io/Grant-Note/CC), [MO](https://fccid.io/Grant-Note/MO), [ND](https://fccid.io/Grant-Note/ND) | [2.3](https://fccid.io/G95BGW620#Grant-TCB-2) |
+| [5.745-5.825 GHz](https://fccid.io/frequency-explorer.php?lower=5745&upper=5825)![5 GHz WiFi](https://cdn-0.fccid.io/images/WiFi-5GHz.png) | 981.8 mW | [15E](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.e) | [CC](https://fccid.io/Grant-Note/CC), [MO](https://fccid.io/Grant-Note/MO) | [2.4](https://fccid.io/G95BGW620#Grant-TCB-2) |
+| [5.955-7.115 GHz](https://fccid.io/frequency-explorer.php?lower=5955.00000000&upper=7115.00000000) | 907.8 mW | [15E](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.e) | [CC](https://fccid.io/Grant-Note/CC), [EP](https://fccid.io/Grant-Note/EP), [MO](https://fccid.io/Grant-Note/MO) | [1.1](https://fccid.io/G95BGW620#Grant-TCB-1) |
+| [5.955-6.415 GHz](https://fccid.io/frequency-explorer.php?lower=5955&upper=6415) | 1.5813 Watts | [15E](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.e) | [CC](https://fccid.io/Grant-Note/CC), [EP](https://fccid.io/Grant-Note/EP), [MO](https://fccid.io/Grant-Note/MO) | [4.1](https://fccid.io/G95BGW620#Grant-TCB-4) |
+| [6.535-6.855 GHz](https://fccid.io/frequency-explorer.php?lower=6535&upper=6855) | 2.2029 Watts | [15E](https://ecfr.io/Title-47/pt47.1.15#sp47.1.15.e) | [CC](https://fccid.io/Grant-Note/CC), [EP](https://fccid.io/Grant-Note/EP), [MO](https://fccid.io/Grant-Note/MO) | [4.2](https://fccid.io/G95BGW620#Grant-TCB-4) |
+
+## Exhibits
+
+- [All](https://fccid.io/G95BGW620#Exhibits)
+- [1 (2024-08-27)](https://fccid.io/G95BGW620#Exhibits-1)
+- [2 (2024-08-27)](https://fccid.io/G95BGW620#Exhibits-2)
+- [3 (2024-08-27)](https://fccid.io/G95BGW620#Exhibits-3)
+- [4 (2024-12-13)](https://fccid.io/G95BGW620#Exhibits-4)
+
+### Available Exhibits
+
+| App # | Document | Type | Submitted Available |
+| --- | --- | --- | --- |
+| 4 | [SDoC Letter](https://fccid.io/G95BGW620/Letter/SDoC-Letter-7847446) | Cover Letter(s) Adobe Acrobat PDF (447 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Attstn Stmts 2.911(d)(5)(i)&(ii)](https://fccid.io/G95BGW620/Attestation-Statements/Attstn-Stmts-2-911-d-5-i-ii-7847445) | Attestation Statements Adobe Acrobat PDF (417 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Attestation Statement 2.911(d)(7)](https://fccid.io/G95BGW620/Attestation-Statements/Attestation-Statement-2-911-d-7-7847444) | Attestation Statements Adobe Acrobat PDF (433 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [OpDes Geolocation General Description](https://fccid.io/G95BGW620/Operational-Description/OpDes-Geolocation-General-Description-7847443) | Operational Description Adobe Acrobat PDF (214 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [External Photos](https://fccid.io/G95BGW620/External-Photos/External-Photos-7847442) | External Photos Adobe Acrobat PDF (1288 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Internal Photos pt. 1](https://fccid.io/G95BGW620/Internal-Photos/Internal-Photos-pt-1-7847441) | Internal Photos Adobe Acrobat PDF (5912 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Internal Photos pt. 2](https://fccid.io/G95BGW620/Internal-Photos/Internal-Photos-pt-2-7847440) | Internal Photos Adobe Acrobat PDF (4295 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Label Information](https://fccid.io/G95BGW620/Label/Label-Information-7847439) | ID Label/Location Info Adobe Acrobat PDF (88 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Confidentiality Letter](https://fccid.io/G95BGW620/Letter/Confidentiality-Letter-7847438) | Cover Letter(s) Adobe Acrobat PDF (400 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [RF Exposure MPE](https://fccid.io/G95BGW620/RF-Exposure-Info/RF-Exposure-MPE-7847437) | RF Exposure Info Adobe Acrobat PDF (360 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [POA Letter](https://fccid.io/G95BGW620/Letter/POA-Letter-7847436) | Cover Letter(s) Adobe Acrobat PDF (408 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Test Report 6G pt. 1](https://fccid.io/G95BGW620/Test-Report/Test-Report-6G-pt-1-7847435) | Test Report Adobe Acrobat PDF (4853 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Test Report 6G pt. 2](https://fccid.io/G95BGW620/Test-Report/Test-Report-6G-pt-2-7847434) | Test Report Adobe Acrobat PDF (1645 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Test Report AFC](https://fccid.io/G95BGW620/Test-Report/Test-Report-AFC-7847433) | Test Report Adobe Acrobat PDF (2300 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [TSUP 6G](https://fccid.io/G95BGW620/Test-Setup-Photos/TSUP-6G-7847432) | Test Setup Photos Adobe Acrobat PDF (1495 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Antenna Report pt. 1](https://fccid.io/G95BGW620/Test-Report/Antenna-Report-pt-1-7847431) | Test Report Adobe Acrobat PDF (4382 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Antenna Report pt. 2](https://fccid.io/G95BGW620/Test-Report/Antenna-Report-pt-2-7847430) | Test Report Adobe Acrobat PDF (5020 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [Antenna Report pt. 3](https://fccid.io/G95BGW620/Test-Report/Antenna-Report-pt-3-7847429) | Test Report Adobe Acrobat PDF (4440 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [TSUP Antenna](https://fccid.io/G95BGW620/Test-Setup-Photos/TSUP-Antenna-7847428) | Test Setup Photos Adobe Acrobat PDF (458 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [UM Regulatory Statements](https://fccid.io/G95BGW620/Users-Manual/UM-Regulatory-Statements-7847427) | Users Manual Adobe Acrobat PDF (116 kB) | 2024-11-22 **2024-12-13** |
+| 4 | [UM User Guide](https://fccid.io/G95BGW620/Users-Manual/UM-User-Guide-7847426) | Users Manual Adobe Acrobat PDF (1060 kB) | 2024-11-22 **2024-12-13** |
+| 3 | [Attstn Stmt Part 2.911(d)(5)(i)&(ii)](https://fccid.io/G95BGW620/Attestation-Statements/Attstn-Stmt-Part-2-911-d-5-i-ii-7602971) | Attestation Statements Adobe Acrobat PDF (378 kB) | 2024-08-26 **2024-08-27** |
+| 3 | [Attestation Statement 2.911(d)(7)](https://fccid.io/G95BGW620/Attestation-Statements/Attestation-Statement-2-911-d-7-7602970) | Attestation Statements Adobe Acrobat PDF (433 kB) | 2024-08-26 **2024-08-27** |
+| 3 | [Confidentiality Letter](https://fccid.io/G95BGW620/Letter/Confidentiality-Letter-7602969) | Cover Letter(s) Adobe Acrobat PDF (408 kB) | 2024-08-26 **2024-08-27** |
+| 3 | [External Photos](https://fccid.io/G95BGW620/External-Photos/External-Photos-7602968) | External Photos Adobe Acrobat PDF (1248 kB) | 2024-08-26 **2024-08-27** |
+| 3 | [', summary=None)]
+
